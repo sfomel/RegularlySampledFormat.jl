@@ -1,0 +1,6 @@
+[deps]
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+RegularlySampledFormat = "1c5ec455-f405-45c6-8f0c-36dd8a824b67"
+
+[sources]
+RegularlySampledFormat = {path = ".."}
