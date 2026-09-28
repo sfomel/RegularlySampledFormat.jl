@@ -1,5 +1,11 @@
 module RegularlySampledFormat
 
-# Write your package code here.
+# Includes
+include("SimTab.jl")
+
+# Exports
+export SimTab,
+       input!,
+       getint
 
 end
