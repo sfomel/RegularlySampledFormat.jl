@@ -48,13 +48,41 @@ enter!(t, "bools", "yes,no,1,0")
 @test getbools(t, "bools", 6) == (true, [true, false, true, false, false, false])
 @test getbools(t, "none", 4) == (false, :none)
 
+add!(t, "key=val")
+string!(t, "one=1 two=2 three=3 four")
+
+@test getint(t, "two") == (true, 2)
+@test getint(t, "four") == (false, :none)
+
 # [TEST CASE 2]:  Test for inputing parameters from a header file
   
 io = open("myfile.txt", "w")
-Base.write(io, "\n\nHello world! \n a=1 b=4 \n c=3\n")
+Base.write(io, "Hello world! \n\n\n a=1 b=4 \n c=3\n")
 close(io)
 
 file = open("myfile.txt")
+t = SimTab()
+input!(t, file)
+close(file)
+
+@test getint(t, "b") == (true, 4)
+@test getint(t, "c") == (true, 3)
+
+file = open("myfile.txt")
+io = open("outfile.txt", "w")
+input!(t, file, io)
+close(io)
+close(file)
+
+@test getint(t, "b") == (true, 4)
+
+# [TEST CASE 3]:  Test for outputing parameters to a header file
+
+fp = open("simtab.txt", "w")
+output(t, fp)
+close(fp)
+
+file = open("simtab.txt")
 t = SimTab()
 input!(t, file)
 close(file)

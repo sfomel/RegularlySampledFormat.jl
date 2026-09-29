@@ -36,7 +36,7 @@ function getpars(t::SimTab, key::String, n::Int, T::DataType)
 	end
 end
 
-function put!(t::SimTab, keyval::String)
+function add!(t::SimTab, keyval::String)
     if '=' in keyval
         key, val = split(keyval, '=')
         enter!(t, String(key), String(val))
@@ -45,8 +45,14 @@ end
 
 function string!(t::SimTab, string::String)
     for word in split(string)
-	put!(t, String(word))
+	add!(t, String(word))
     end
+end
+
+function output(t::SimTab, filep::IOStream)
+    for key in keys(t.table)
+        Base.write(filep, "\t$(key)=$(t.table[key])\n")
+	end
 end
 
 # extract parameters from header file
@@ -60,7 +66,7 @@ function input!(t::SimTab, filep::IOStream, out=:none)
         try
             line3 = read(filep, 3)
             # skip new lines
-            while line3[:1] == '\n'
+            while line3[1] == '\n'
                 line3 = vcat(line3[2:end], read(filep, 1))
 	    end
             # check code for the header end

@@ -6,6 +6,8 @@ include("SimTab.jl")
 # Exports
 export SimTab,
        enter!,
+       add!,
+       string!,
        input!,
        getint,
        getstring,
@@ -13,6 +15,7 @@ export SimTab,
        getfloat,
        getfloats,
        getbool,
-       getbools
-
+       getbools,
+       output
+       
 end
