@@ -11,6 +11,8 @@ export SimTab,
        getstring,
        getints,
        getfloat,
-       getfloats
+       getfloats,
+       getbool,
+       getbools
 
 end

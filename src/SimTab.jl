@@ -98,6 +98,37 @@ function getstring(t::SimTab, key::String)
 	end
 end
 
+function getbool(t::SimTab, key::String)
+	val = get(t.table, key, false)
+	if false == val
+		return false, :none
+	else
+		if val[1] == 'y' || val[1] == 'Y' || val[1] == '1'
+            return true, true
+        else
+            return true, false
+		end
+	end
+end
+
+function getbools(t::SimTab, key::String, n::Int)
+	val = get(t.table, key, false)
+	if false == val
+		return false, :none
+	else
+		vals = split(val,",")
+        nval = length(vals)
+        # set array to length n
+        if n < nval
+            vals = vals[1:n]
+		elseif n > nval
+			vals = vcat(vals, repeat([vals[nval]], n-nval))
+		end
+		bools = [v[1] == 'y' || v[1] == 'Y' || v[1] == '1' for v in vals]
+        return true, bools
+	end
+end
+
 getint(t::SimTab, key::String) = getpar(t, key, Int32)
 getints(t::SimTab, key::String, n::Int) = getpars(t, key, n, Int32)
 
