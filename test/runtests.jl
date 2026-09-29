@@ -46,7 +46,7 @@ enter!(t, "bools", "yes,no,1,0")
 @test getbools(t, "bools", 4) == (true, [true, false, true, false])
 @test getbools(t, "bools", 2) == (true, [true, false])
 @test getbools(t, "bools", 6) == (true, [true, false, true, false, false, false])
-@test getbools(t, "none") == (false, :none)
+@test getbools(t, "none", 4) == (false, :none)
 
 # [TEST CASE 2]:  Test for inputing parameters from a header file
   
