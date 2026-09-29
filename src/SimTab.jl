@@ -100,3 +100,6 @@ end
 
 getint(t::SimTab, key::String) = getpar(t, key, Int32)
 getints(t::SimTab, key::String, n::Int) = getpars(t, key, n, Int32)
+
+getfloat(t::SimTab, key::String) = getpar(t, key, Float32)
+getfloats(t::SimTab, key::String, n::Int) = getpars(t, key, n, Float32)

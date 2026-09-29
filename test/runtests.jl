@@ -15,6 +15,20 @@ enter!(t, "ints", "2,3,4")
 
 @test getints(t, "ints", 3) == (true, [2, 3, 4])
 
+@test getints(t, "ints", 2) == (true, [2, 3])
+
+@test getints(t, "ints", 6) == (true, [2, 3, 4, 4, 4, 4])
+
+enter!(t, "float", "3.14")
+
+@test getfloat(t, "float")[1] == true && getfloat(t, "float")[2] ≈ 3.14
+
+@test getfloat(t, "int")[1] == true && getfloat(t, "int")[2] ≈ 25.0
+
+@test getfloats(t, "ints", 6)[1] == true && getfloats(t, "ints", 6)[2] ≈ [2.0, 3.0, 4.0, 4.0, 4.0, 4.0]
+
+@test getstring(t, "int") == "25"
+
 # [TEST CASE 2]:  Test for inputing parameters from a header file
   
 io = open("myfile.txt", "w")

@@ -9,6 +9,8 @@ export SimTab,
        input!,
        getint,
        getstring,
-       getints
+       getints,
+       getfloat,
+       getfloats
 
 end
