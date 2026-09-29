@@ -5,7 +5,10 @@ include("SimTab.jl")
 
 # Exports
 export SimTab,
+       enter!,
        input!,
-       getint
+       getint,
+       getstring,
+       getints
 
 end

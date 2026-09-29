@@ -85,7 +85,18 @@ function input!(t::SimTab, filep::IOStream, out=:none)
     end
 end
 
+function getstring(t::SimTab, key::String)
+	val = get(t.table, key, false)
+	if false == val
+		return :none
+	else
+		# strip quotes
+        if val[1] == '"' && val[end] == '"'
+            val = val[2:end-1]
+		end
+        return val
+	end
+end
+
 getint(t::SimTab, key::String) = getpar(t, key, Int32)
-
-
-
+getints(t::SimTab, key::String, n::Int) = getpars(t, key, n, Int32)
