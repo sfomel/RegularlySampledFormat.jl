@@ -4,3 +4,6 @@ RegularlySampledFormat = "1c5ec455-f405-45c6-8f0c-36dd8a824b67"
 
 [sources]
 RegularlySampledFormat = {path = ".."}
+
+[compat]
+Documenter = "1.19.0"
