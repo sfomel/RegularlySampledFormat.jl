@@ -32,6 +32,7 @@ enter!(t, "float", "3.14")
 enter!(t, "string", "\"3.14\"")
 
 @test getstring(t, "string") == "3.14"
+@test getstring(t, "none") == :none
 
 enter!(t, "true", "yes")
 enter!(t, "false", "no")
@@ -45,12 +46,12 @@ enter!(t, "bools", "yes,no,1,0")
 @test getbools(t, "bools", 4) == (true, [true, false, true, false])
 @test getbools(t, "bools", 2) == (true, [true, false])
 @test getbools(t, "bools", 6) == (true, [true, false, true, false, false, false])
-
+@test getbools(t, "none") == (false, :none)
 
 # [TEST CASE 2]:  Test for inputing parameters from a header file
   
 io = open("myfile.txt", "w")
-Base.write(io, "Hello world! \n a=1 b=4 \n c=3\n")
+Base.write(io, "\n\nHello world! \n a=1 b=4 \n c=3\n")
 close(io)
 
 file = open("myfile.txt")
