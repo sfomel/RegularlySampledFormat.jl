@@ -2,6 +2,7 @@ module RegularlySampledFormat
 
 # Includes
 include("SimTab.jl")
+include("Par.jl")
 
 # Exports
 export SimTab,
@@ -16,6 +17,8 @@ export SimTab,
        getfloats,
        getbool,
        getbools,
-       output
+       output,
+       Par,
+       getprog
        
 end

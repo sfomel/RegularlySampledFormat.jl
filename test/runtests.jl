@@ -89,4 +89,10 @@ close(file)
 
 @test getint(t, "b") == (true, 4)
 
+# [TEST CASE 3]:  Test for Par struct
+
+par = Par("julia",["-"])
+
+@test getprog(par) == "julia"
+
 end
