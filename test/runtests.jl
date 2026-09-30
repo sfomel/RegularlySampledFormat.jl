@@ -14,10 +14,9 @@ enter!(t, "int", "25")
 enter!(t, "ints", "2,3,4")
 
 @test getints(t, "ints", 3) == (true, [2, 3, 4])
-
 @test getints(t, "ints", 2) == (true, [2, 3])
-
 @test getints(t, "ints", 6) == (true, [2, 3, 4, 4, 4, 4])
+@test getints(t, "none", 4) == (false, :none)
 
 enter!(t, "float", "3.14")
 
@@ -57,7 +56,7 @@ string!(t, "one=1 two=2 three=3 four")
 # [TEST CASE 2]:  Test for inputing parameters from a header file
   
 io = open("myfile.txt", "w")
-Base.write(io, "Hello world! \n\n\n a=1 b=4 \n c=3\n")
+Base.write(io, "\n\n\n Hello world! \n\n\n a=1 b=4 \n c=3\n")
 close(io)
 
 file = open("myfile.txt")
@@ -94,5 +93,11 @@ close(file)
 par = Par("julia",["-"])
 
 @test getprog(par) == "julia"
+@test getint("b") == :none
+@test getint("c", 4) == 4
+@test getfloat("b") == :none
+@test getfloat("b", 4.0) == 4.0
+@test getbool("b") == :none
+@test getbool("b", true) == true
 
 end

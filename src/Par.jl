@@ -1,4 +1,5 @@
 begin
+	# Par.jl:  A simple parameter table for storing parameters
 	struct Par 
 		pars::SimTab
 		prog::String
@@ -23,4 +24,18 @@ begin
 end
 
 getprog(p::Par) = p.prog
+
+function getpar(p::Par, key::String, T::DataType, default=:none)
+	get, par = getpar(p.pars, key, T)
+	if get 
+        return par
+	else
+        return default
+	end
+end
+
+getint(key::String, default=:none) = getpar(par, key, Int32, default)
+getfloat(key::String, default=:none) = getpar(par, key, Float32, default)
+getbool(key::String, default=:none) = getpar(par, key, Bool, default)
+getstring(key::String, default=:none) = getpar(par, key, String, default)
 
