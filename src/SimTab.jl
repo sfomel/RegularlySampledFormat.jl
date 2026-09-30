@@ -45,9 +45,9 @@ function getpars(t::SimTab, key::String, n::Int, T::DataType)
         	# set array to length n
         	if n < nval
             	   vals = vals[1:n]
-		elseif n > nval
+			elseif n > nval
 	    	   vals = vcat(vals, repeat([vals[nval]], n-nval))
-		end
+			end
 		return true, [parse(T, v) for v in vals]
 	end
 end

@@ -99,5 +99,15 @@ par = Par("julia",["-"])
 @test getfloat("b", 4.0) == 4.0
 @test getbool("b") == :none
 @test getbool("b", true) == true
+@test getstring("b") == :none
+@test getstring("b", "default") == "default"
+
+@test getints("ints", 6) == :none
+@test getfloats("ints", 6) == :none
+@test getbools("ints", 6) == :none
+@test getints("ints", 6, [1,2,3]) == [1,2,3,3,3,3]
+@test getints("ints", 3, [1,2,3]) == [1,2,3]
+@test getfloats("ints", 6, [1.0,2.0,3.0]) ≈ [1.0,2.0,3.0,3.0,3.0,3.0]
+@test getbools("ints", 6, [true,false,true]) == [true,false,true,true,true,true]
 
 end
