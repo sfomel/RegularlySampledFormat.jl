@@ -110,4 +110,13 @@ par = Par("julia",["-"])
 @test getfloats("ints", 6, [1.0,2.0,3.0]) ≈ [1.0,2.0,3.0,3.0,3.0,3.0]
 @test getbools("ints", 6, [true,false,true]) == [true,false,true,true,true,true]
 
+# [TEST CASE 4]:  Test for RSF file reading and writing
+
+ENV["DATAPATH"] = "/some/value"
+@test Datapath() == "/some/value"
+
+# check that the temporary file is created in the correct directory    
+ENV["TMPDATAPATH"] = "."
+@test Temp()[1] == '.' 
+
 end

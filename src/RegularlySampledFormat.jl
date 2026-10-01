@@ -3,6 +3,7 @@ module RegularlySampledFormat
 # Includes
 include("SimTab.jl")
 include("Par.jl")
+include("RSF.jl")
 
 # Exports
 export SimTab,
@@ -19,6 +20,8 @@ export SimTab,
        getbools,
        output,
        Par,
-       getprog
+       getprog,
+       Datapath,
+       Temp 
        
 end
