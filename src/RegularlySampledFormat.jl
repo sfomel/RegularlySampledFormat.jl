@@ -25,7 +25,8 @@ export SimTab,
        Temp,
        _RSF,
        gettype,
-       settype!
-
+       settype!,
+       getform,   
+       setform!
 
 end

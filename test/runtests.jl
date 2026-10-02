@@ -143,8 +143,15 @@ Base.write(io, """
 close(io)
 
 rsf = _RSF(true, "spike.rsf")
+
 @test gettype(rsf) == Float32
 settype!(rsf, Int32)
 @test gettype(rsf) == Int32
+
+@test getform(rsf) == "xdr"
+setform!(rsf, "native")
+@test getform(rsf) == "native"
+setform!(rsf, "ascii")
+@test getform(rsf) == "ascii"
 
 end

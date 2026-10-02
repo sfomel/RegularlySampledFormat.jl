@@ -108,7 +108,10 @@ begin
         eformat::Printf.Format
         aline::Int
 	end
-	_infiles = Vector{_RSF}(undef, 1)
+	
+    _infiles = Vector{Union{_RSF, Symbol}}(undef, 1)
+    _infiles[1] = :none
+
     """
         _RSF(inp::Bool, tag=nothing) -> _RSF
 
@@ -143,13 +146,19 @@ begin
 			if filename != "stdin"
 				stream = open(filename,"r+")
 			end
-			# keep track of input files
 			new = _RSF(stream, pars, headname, head, dataname, false, Float32, "native", Printf.Format(""), Printf.Format(""), 8)
-			if filename == :none
+			# keep track of input files
+            if filename == :none
 				_infiles[1] = new
 			else
 				push!(_infiles, new)
 			end
+            # set format
+            data_format = getstring(pars, "data_format")
+            if data_format == :none
+                data_format = "ascii_float"
+            end
+            setformat!(new, data_format)
 			return new
 		else
 			if tag==nothing || tag=="out"
@@ -191,7 +200,15 @@ begin
             else
                 dataname = filename
 			end
-			return _RSF(stream, SimTab(), :none, :none, dataname, pipe, Float32, "native", :none, :none, 8)
+			new = _RSF(stream, SimTab(), :none, :none, dataname, pipe, Float32, "native", :none, :none, 8)
+            # set format
+            if _infiles[1] != :none
+                data_format = getstring(_infiles[1], "data_format", "native_float")
+            else
+                data_format = "native_float" 
+            end 
+            setformat!(new, data_format)
+            return new
 		end
 	end
 end
@@ -225,3 +242,153 @@ gettype(rsf::_RSF) = rsf.type
 function settype!(rsf::_RSF, T::DataType)
 	rsf.type = T
 end
+
+"""
+    putint!(rsf::_RSF, key::String, par::Int)
+
+    Write an integer parameter to the RSF file represented by the `_RSF` struct. 
+    The parameter is associated with the specified `key`.
+"""
+function putint!(rsf::_RSF, key::String, par::Int)
+    if :none == rsf.dataname
+        throw("putint to a closed file")
+	end
+    val = "$par"
+    enter!(rsf.pars, key, val)
+end
+
+"""
+    putfloat!(rsf::_RSF, key::String, par::Float)
+
+    Write a float parameter to the RSF file represented by the `_RSF` struct. 
+    The parameter is associated with the specified `key`.
+"""
+function putints!(rsf::_RSF,key::String,par::Array{Int},n::Int)
+    if :one == rsf.dataname
+        throw("putints to a closed file")
+	end
+    val = ""
+    for i in 1:n-1
+        val *= "$(par[i]),"
+	end
+    val *= "$(par[n])"
+    enter!(rsf.pars, key, val)
+end
+
+"""
+    putfloats!(rsf::_RSF,key::String,par::Array{Float32},n::Int)
+
+    Write an array of float parameters to the RSF file represented by the `_RSF` struct. 
+    The parameters are associated with the specified `key`.
+"""
+function putfloat!(rsf::_RSF, key::String, par::Float32)
+    if :none == rsf.dataname
+        throw("putint to a closed file")
+	end
+    val = "$par"
+    enter!(rsf.pars, key, val)
+end
+
+"""
+    putfloats!(rsf::_RSF,key::String,par::Array{Float32},n::Int)
+
+    Write an array of float parameters to the RSF file represented by the `_RSF` struct. 
+    The parameters are associated with the specified `key`.
+"""
+function putfloats!(rsf::_RSF,key::String,par::Array{Float32},n::Int)
+    if :one == rsf.dataname
+        throw("putints to a closed file")
+	end
+    val = ""
+    for i in 1:n-1
+        val *= "$(par[i]),"
+	end
+    val *= "$(par[n])"
+    enter!(rsf.pars, key, val)
+end
+
+"""
+    getform(rsf::_RSF) -> String
+
+    Return the data format of the RSF file represented by the `_RSF` struct.
+"""
+getform(rsf::_RSF) = rsf.form
+
+"""
+    setform!(rsf::_RSF, form::String)
+
+    Set the data format of the RSF file represented by the `_RSF` struct to `form`. 
+    If `form` is "ascii", it also sets the appropriate formats for ASCII output.
+"""
+function setform!(rsf::_RSF, form::String)
+    rsf.form = form
+    if form == "ascii"
+        if :none != rsf.dataname
+           putint!(rsf, "esize", 0) # for compatibility with SEPlib
+		end
+        rsf.aformat = Printf.Format("")
+        rsf.eformat = Printf.Format("")
+        rsf.aline = 8
+	end
+end
+
+"""
+    setformat!(rsf::_RSF, dataformat::String)
+
+    Set the data type and format of the RSF file represented by the `_RSF` struct based on the provided `dataformat` string. 
+    The function determines the appropriate data type and format (ASCII, XDR, or native) based on the contents of `dataformat`.
+"""
+function setformat!(rsf::_RSF, dataformat::String)
+    done = false
+	types = Dict("float" => Float32,
+	    		 "int" => Int32,
+				 "complex" => ComplexF32,
+				 "uchar" => UInt8,
+				 "char" => Int8,
+				 "short" => Int16,
+				 "long" => Int64,
+				 "double" => Float64
+				)
+    for type in ("float", "int", "complex", "uchar", "short", "long", "double")
+        if occursin(type, dataformat)
+            settype!(rsf, types[type])
+            done = true
+            break
+		end
+	end
+    if !done
+        if occursin("byte", dataformat)
+            settype!(rsf, types["uchar"])
+        else
+            settype!(rsf, types["char"])
+		end
+	end
+    if dataformat[1:6] == "ascii_"
+        setform!(rsf, "ascii")
+	elseif dataformat[1:4] == "xdr_"
+        setform!(rsf, "xdr")
+    else
+        setform!(rsf, "native")
+	end
+end
+
+"""
+    getstring(rsf::_RSF, key::String, default=:none) -> String
+
+    Retrieve the string value associated with the specified `key` in the RSF file represented by the `_RSF` struct.
+    If the key is not found, return the `default` value.
+"""
+function getstring(rsf::_RSF, key::String, default=:none)
+    get = getstring(rsf.pars, key)
+    if get != :none
+        return get
+    else
+        return default
+	end
+end
+
+
+
+
+
+
