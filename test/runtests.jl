@@ -107,6 +107,7 @@ par = Par("julia",["-"])
 @test getbools("ints", 6) == :none
 @test getints("ints", 6, [1,2,3]) == [1,2,3,3,3,3]
 @test getints("ints", 3, [1,2,3]) == [1,2,3]
+@test getints("ints", 2, [1,2,3]) == [1,2]
 @test getfloats("ints", 6, [1.0,2.0,3.0]) ≈ [1.0,2.0,3.0,3.0,3.0,3.0]
 @test getbools("ints", 6, [true,false,true]) == [true,false,true,true,true,true]
 
@@ -118,5 +119,32 @@ ENV["DATAPATH"] = "/some/value"
 # check that the temporary file is created in the correct directory    
 ENV["TMPDATAPATH"] = "."
 @test Temp()[1] == '.' 
+
+io = open("spike.rsf", "w")
+Base.write(io, """
+4.3-git	sfspike	Users/sfomel/RSFSRC:	sfomel@GEO-A78312	Fri Oct  2 15:37:15 2026
+
+	o1=0
+	label1="Time"
+	data_format="native_float"
+	esize=4
+	in="stdout"
+	unit1="s"
+	d1=0.004
+	n1=10
+	in="stdin"
+
+4.3-git	sfdd	Users/sfomel/RSFSRC:	sfomel@GEO-A78312	Fri Oct  2 15:37:15 2026
+
+	data_format="xdr_float"
+	esize=4
+	in="/Users/sfomel/RSFROOT/data/spike.rsf@"
+""")
+close(io)
+
+rsf = _RSF(true, "spike.rsf")
+@test gettype(rsf) == Float32
+settype!(rsf, Int32)
+@test gettype(rsf) == Int32
 
 end

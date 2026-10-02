@@ -22,6 +22,10 @@ export SimTab,
        Par,
        getprog,
        Datapath,
-       Temp 
-       
+       Temp,
+       _RSF,
+       gettype,
+       settype!
+
+
 end
