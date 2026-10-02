@@ -11,7 +11,7 @@ Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 [compat]
 DelimitedFiles = "1.9.1"
 DocumenterTools = "0.1.21"
-Printf = "1.11.0"
+Printf = "1.10.12"
 julia = "1.10.10"
 
 [extras]
