@@ -142,6 +142,10 @@ Base.write(io, """
 """)
 close(io)
 
+io = open("spike.rsf@", "w")
+Base.write(io, Float32[0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
+close(io)
+
 rsf = _RSF(true, "spike.rsf")
 
 @test gettype(rsf) == Float32
@@ -153,5 +157,8 @@ setform!(rsf, "native")
 @test getform(rsf) == "native"
 setform!(rsf, "ascii")
 @test getform(rsf) == "ascii"
+
+putstring!(rsf, "newkey", "newvalue")
+@test getstring(rsf, "newkey") == "newvalue"
 
 end

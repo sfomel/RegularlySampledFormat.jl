@@ -387,6 +387,57 @@ function getstring(rsf::_RSF, key::String, default=:none)
 	end
 end
 
+"""
+    putstring!(rsf::_RSF, key::String, par::String)
+
+    Write a string parameter to the RSF file represented by the `_RSF` struct. 
+    The parameter is associated with the specified `key`.
+"""
+function putstring!(rsf::_RSF, key::String, par::String)
+    if :none == rsf.dataname
+        throw("putstring to a closed file")
+	end
+    val = "\"$(par)\""
+    enter!(rsf.pars, key, val)
+end
+
+"""
+    fileflush!(rsf::_RSF, src::_RSF)
+
+    Flush the contents of the RSF file represented by the `_RSF` struct to disk. 
+    If `src` is provided, it also flushes the contents of the source RSF file to the destination.
+"""
+function fileflush!(rsf::_RSF, src::_RSF)
+    if :none == rsf.dataname
+        return
+	end
+    if :none != src && :none != src.head
+        seek(src.head,0)
+		for line in eachline(src.head)
+			write(line, rsf.stream)
+		end
+	end
+
+    user = Libc.getuid()
+	username = Libc.getpwuid(user).username
+	now = Dates.now()
+	time = Dates.format(now, "e, dd u yyyy HH:MM:SS")
+	line = "$(getprog(par))\t$(pwd())\t$(username)\t$(gethostname())\t$(now)\n"
+	write(line, rsf.stream)
+
+    putstring!(rsf, "data_format", join([rsf.form,rsf.type],"-"))
+    output(rsf.pars, rsf.stream)
+    flush(rsf.stream)
+
+    if rsf.dataname == "stdout"
+        # keep stream, write the header end code
+        write(rsf.stream, "\tin=\"stdin\"\n\n\x0c\x0c\x04")
+        flush(rsf.stream)
+    else                 
+        rsf.stream = open(rsf.dataname,"w+b")
+        rsf.dataname = :none
+	end
+end
 
 
 
