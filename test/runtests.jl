@@ -138,7 +138,7 @@ Base.write(io, """
 
 	data_format="xdr_float"
 	esize=4
-	in="/Users/sfomel/RSFROOT/data/spike.rsf@"
+	in="spike.rsf@"
 """)
 close(io)
 
