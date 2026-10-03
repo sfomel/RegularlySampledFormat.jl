@@ -93,7 +93,7 @@ close(file)
 par = Par("julia",["-"])
 
 @test getprog(par) == "julia"
-@test getint("b") == :none
+@test getint("c") == :none
 @test getint("c", 4) == 4
 @test getfloat("b") == :none
 @test getfloat("b", 4.0) == 4.0
@@ -160,5 +160,7 @@ setform!(rsf, "ascii")
 
 putstring!(rsf, "newkey", "newvalue")
 @test getstring(rsf, "newkey") == "newvalue"
+
+@test tell(rsf) == 0
 
 end

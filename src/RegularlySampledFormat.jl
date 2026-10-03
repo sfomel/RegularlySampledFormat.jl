@@ -28,6 +28,7 @@ export SimTab,
        settype!,
        getform,   
        setform!,
-       putstring!
-       
+       putstring!,
+       tell
+
 end
