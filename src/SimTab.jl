@@ -16,9 +16,9 @@ function enter!(t::SimTab, key::String, val::String)
 end
 
 """
-	add!(t, keyval)
+	getpar(t, key, T)
 
-	Enter a key-value pair into the symbolic table `t` from a string of the form "key=val".
+	Extract a parameter of type `T` from the symbolic table `t` for a given `key`.
 """
 function getpar(t::SimTab, key::String, T::DataType)
 	val = get(t.table, key, false)
@@ -103,21 +103,21 @@ function input!(t::SimTab, filep::IOStream, out=:none)
             # skip new lines
             while line3[1] == 0x0a
                 line3 = vcat(line3[2:end], read(filep, 1))
-	    end
+	    	end
             # check code for the header end
             if line3[1] == 0x0c && line3[2] == 0x0c && line3[3] == 0x04
                 break
-	    end
+	    	end
             line = String(line3) * readline(filep)
             if length(line) < 1
                 break
-	    end
-            if out != :none
-                write(out, line)
-	    end
+	    	end
             # extract parameters
             string!(t, line)
-       catch
+			if out != :none
+            	Base.write(out, line)
+	    	end
+        catch
             break
         end
     end

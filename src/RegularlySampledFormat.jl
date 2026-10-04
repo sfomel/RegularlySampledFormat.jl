@@ -29,6 +29,7 @@ export SimTab,
        getform,   
        setform!,
        putstring!,
-       tell
+       tell,
+       bytes
 
 end

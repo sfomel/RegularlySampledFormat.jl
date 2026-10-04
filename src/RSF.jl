@@ -28,7 +28,7 @@ function Datapath()
 			end
 		end
         if pathfile != nothing
-			re = "(?:$(Sys.gethostname())\\s+)?datapath=(\\S+)" 
+			re = "(?:$(Base.Libc.gethostname())\\s+)?datapath=(\\S+)" 
             for line in readlines(pathfile)
 				check = match(re, line)
                 if check != nothing
@@ -132,14 +132,14 @@ begin
 				stream = open(filename,"r+")
 			end
 			headname = Temp()
-			head = open(headname, "w+")
+			head = open(headname, "w")
 			# read parameters
 			pars = SimTab()
 			input!(pars, stream, head)
 			# get dataname
             filename = getstring(pars,"in")
             if filename == :none
-				throw("No in= in file \"$tag\" ")
+				throw("No in= in file '$tag' ")
 			end
 			dataname = filename
 			# keep stream in the special case of in=stdin
@@ -498,6 +498,45 @@ function intwrite(rsf::_RSF,arr)
 end
 
 """
+    floatwrite(rsf::_RSF, arr)
+
+    Write an array of floats (Float32) to the RSF file represented by the `_RSF` struct.
+"""
+function floatwrite(rsf::_RSF,arr)
+	if :none != rsf.dataname
+        fileflush!(rsf, _infiles[1])
+	end
+                
+    if self.form == "ascii"
+        if rsf.aformat == Printf.Format("")
+            aformat = Printf.Format("%g ")
+        else
+            aformat = rsf.aformat
+		end
+        if self.eformat == Printf.Format("")
+            eformat = Printf.Format("%g ")
+        else
+            eformat = rsf.eformat
+		end
+        size = length(arr)
+        farr = vec(arr)
+        left = size    
+        while left > 0
+            nbuf = min(self.aline, left)
+            last = size-left+nbuf
+            for i in size-left+1:last-1
+                write(self.stream, Printf.format(aformat, farr[i]))
+			end
+			write(self.stream, Printf.format(eformat, farr[last]))
+            write(self.stream, "\n")
+            left -= nbuf
+		end
+    else
+		write(rsf.stream, reinterpret(UInt8, arr))
+	end
+end
+
+"""
     intread!(rsf::_RSF, arr)  
 
     Read an array of integers (Int32) from the RSF file represented by the `_RSF` struct into the provided `arr`.
@@ -544,12 +583,42 @@ function read!(inp::Input, data::Array)
 end
 
 """
+    write(out::Output, data::Array)
+
+    Write data from the provided `data` array to the RSF file represented by the `Output` struct.
+"""
+function write(out::Output, data::Array)
+	type = out.file.type
+	if type == Float32
+        floatwrite(out.file, data)
+	elseif type == Int32
+		intwrite(out.file, data)
+	else
+        throw("Unsupported file type $(string(type))")
+	end
+end
+
+"""
     tell(rsf::_RSF) -> Int
 
     Return the current position in the RSF file represented by the `_RSF` struct.
 """
 tell(rsf::_RSF) = position(rsf.stream)
 
+"""
+    bytes(rsf::_RSF) -> Int
 
-
-
+    Return the size in bytes of the RSF file represented by the `_RSF` struct. 
+    If the data name is "stdin", it returns -1. 
+"""
+function bytes(rsf::_RSF)
+    if rsf.dataname == "stdin"
+        return -1
+	end
+    if rsf.dataname == :none
+        st = stat(rsf.stream)
+	else
+        st = stat(rsf.dataname)
+	end
+    return st.size
+end

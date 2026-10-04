@@ -120,7 +120,7 @@ ENV["DATAPATH"] = "/some/value"
 ENV["TMPDATAPATH"] = "."
 @test Temp()[1] == '.' 
 
-io = open("spike.rsf", "w")
+io = open("mytest.rsf", "w")
 Base.write(io, """
 4.3-git	sfspike	Users/sfomel/RSFSRC:	sfomel@GEO-A78312	Fri Oct  2 15:37:15 2026
 
@@ -138,15 +138,15 @@ Base.write(io, """
 
 	data_format="xdr_float"
 	esize=4
-	in="spike.rsf@"
+	in="mytest.rsf@"
 """)
 close(io)
 
-io = open("spike.rsf@", "w")
+io = open("mytest.rsf@", "w")
 Base.write(io, Float32[0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
 close(io)
 
-rsf = _RSF(true, "spike.rsf")
+rsf = _RSF(true, "mytest.rsf")
 
 @test gettype(rsf) == Float32
 settype!(rsf, Int32)
@@ -162,5 +162,6 @@ putstring!(rsf, "newkey", "newvalue")
 @test getstring(rsf, "newkey") == "newvalue"
 
 @test tell(rsf) == 0
+@test bytes(rsf) == 10 * sizeof(Float32)
 
 end
