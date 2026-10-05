@@ -4,6 +4,7 @@ module RegularlySampledFormat
 include("SimTab.jl")
 include("Par.jl")
 include("RSF.jl")
+include("File.jl")
 
 # Exports
 export SimTab,
@@ -32,6 +33,8 @@ export SimTab,
        tell,
        bytes,
        Input,
-       Output
+       Output,
+       RSF,
+       getshape
 
 end

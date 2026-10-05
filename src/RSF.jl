@@ -655,3 +655,33 @@ getfloat(inp::Input, key::String, default=:none) = getpar(inp.file, key, Float32
 getint(out::Output, key::String, default=:none) = getpar(out.file, key, Int32, default)
 getfloat(out::Output, key::String, default=:none) = getpar(out.file, key, Float32, default)
 
+"""
+    getshape(rsf::_RSF) -> Array{Int}
+
+    Extract the shape of the data from the RSF file represented by the `_RSF` struct. 
+    The function returns an array of integers representing the dimensions of the data.
+"""
+function getshape(rsf::_RSF)
+    s = Array{Int}(undef, 0)
+    dim = 1
+    # check for n1, n2, ..., n9 parameters in the RSF file
+    for i in 1:9
+        ni = getpar(rsf, "n$i", Int)
+        if ni != :none
+            dim = i
+            push!(s, ni)
+        end
+    end
+    # remove trailing dimensions of size 1
+    for i = dim:-1:1
+        if s[i] <= 1
+            pop!(s)
+        else
+            break
+        end
+    end
+    return Tuple(s)
+end
+
+getshape(inp::Input) = getshape(inp.file)
+getshape(out::Output) = getshape(out.file)

@@ -6,11 +6,13 @@ authors = ["sfomel <sergey.fomel@gmail.com> and contributors"]
 [deps]
 DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 DocumenterTools = "35a29f4d-8980-5a13-9543-d66fff28ecb8"
+Mmap = "a63ad114-7e13-5084-954f-fe012c677804"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [compat]
 DelimitedFiles = "1.9.1"
 DocumenterTools = "0.1.21"
+Mmap = "1.11.0"
 Printf = "1.10.12"
 julia = "1.10.10"
 

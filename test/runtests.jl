@@ -173,4 +173,10 @@ out = Output("mytest_out.rsf")
 @test gettype(out) == Float32
 @test getform(out) == "native"	
 
+@test getshape(inp) == (10,)
+
+file = RSF("mytest.rsf")
+
+@test getshape(file) == (10,)
+
 end
