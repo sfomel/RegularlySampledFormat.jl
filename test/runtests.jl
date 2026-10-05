@@ -179,4 +179,9 @@ file = RSF("mytest.rsf")
 
 @test getshape(file) == (10,)
 
+data = ones(Float32, 5, 4)
+file = RSF(data)
+
+@test getshape(file) == (5, 4)
+
 end

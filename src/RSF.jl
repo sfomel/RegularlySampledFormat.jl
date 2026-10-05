@@ -2,6 +2,7 @@
 # as well as some utility functions for handling RSF data.
 
 using Printf
+using Dates
 
 """
     Datapath() -> String
@@ -96,7 +97,7 @@ end
 
 begin
 	mutable struct _RSF
-		stream::IOStream
+		stream::Union{IOStream, Symbol}
 		pars::SimTab
 		headname::Union{String, Symbol}
 		head::Union{IOStream, Symbol}
@@ -272,6 +273,8 @@ function putint!(rsf::_RSF, key::String, par::Int)
     enter!(rsf.pars, key, val)
 end
 
+putint!(rsf::Output, key::String, par::Int) = putint!(rsf.file, key, par)
+
 """
     putfloat!(rsf::_RSF, key::String, par::Float)
 
@@ -389,6 +392,8 @@ function setformat!(rsf::_RSF, dataformat::String)
 	end
 end
 
+setformat!(rsf::Output, dataformat::String) = setformat!(rsf.file, dataformat)
+
 """
     getstring(rsf::_RSF, key::String, default=:none) -> String
 
@@ -424,14 +429,14 @@ end
     Flush the contents of the RSF file represented by the `_RSF` struct to disk. 
     If `src` is provided, it also flushes the contents of the source RSF file to the destination.
 """
-function fileflush!(rsf::_RSF, src::_RSF)
+function fileflush!(rsf::_RSF, src::Union{_RSF, Symbol})
     if :none == rsf.dataname
         return
 	end
     if :none != src && :none != src.head
         seek(src.head,0)
 		for line in eachline(src.head)
-			write(line, rsf.stream)
+			Base.write(rsf.stream, line * "\n")
 		end
 	end
 
@@ -440,7 +445,7 @@ function fileflush!(rsf::_RSF, src::_RSF)
 	now = Dates.now()
 	time = Dates.format(now, "e, dd u yyyy HH:MM:SS")
 	line = "$(getprog(par))\t$(pwd())\t$(username)\t$(gethostname())\t$(now)\n"
-	write(line, rsf.stream)
+	Base.write(rsf.stream, line)
 
     putstring!(rsf, "data_format", join([rsf.form,rsf.type],"-"))
     output(rsf.pars, rsf.stream)
@@ -448,7 +453,7 @@ function fileflush!(rsf::_RSF, src::_RSF)
 
     if rsf.dataname == "stdout"
         # keep stream, write the header end code
-        write(rsf.stream, "\tin=\"stdin\"\n\n\x0c\x0c\x04")
+        Base.write(rsf.stream, "\tin=\"stdin\"\n\n\x0c\x0c\x04")
         flush(rsf.stream)
     else                 
         rsf.stream = open(rsf.dataname,"w+b")
@@ -472,7 +477,7 @@ function ucharwrite(rsf::_RSF, arr)
     if :none != rsf.dataname
         fileflush!(rsf, _infiles[1])
 	end
-	write(rsf.stream, reinterpret(UInt8, arr))
+	Base.write(rsf.stream, reinterpret(UInt8, arr))
 end
 
 """
@@ -485,13 +490,13 @@ function intwrite(rsf::_RSF,arr)
         fileflush!(rsf, _infiles[1])
 	end
                 
-    if self.form == "ascii"
+    if rsf.form == "ascii"
         if rsf.aformat == Printf.Format("")
             aformat = Printf.Format("%d ")
         else
             aformat = rsf.aformat
 		end
-        if self.eformat == Printf.Format("")
+        if rsf.eformat == Printf.Format("")
             eformat = Printf.Format("%d ")
         else
             eformat = rsf.eformat
@@ -500,17 +505,17 @@ function intwrite(rsf::_RSF,arr)
         farr = vec(arr)
         left = size    
         while left > 0
-            nbuf = min(self.aline, left)
+            nbuf = min(rsf.aline, left)
             last = size-left+nbuf
             for i in size-left+1:last-1
-                write(self.stream, Printf.format(aformat, farr[i]))
+                Base.write(rsf.stream, Printf.format(aformat, farr[i]))
 			end
-			write(self.stream, Printf.format(eformat, farr[last]))
-            write(self.stream, "\n")
+			Base.write(rsf.stream, Printf.format(eformat, farr[last]))
+            Base.write(rsf.stream, "\n")
             left -= nbuf
 		end
     else
-		write(rsf.stream, reinterpret(UInt8, arr))
+		Base.write(rsf.stream, reinterpret(UInt8, arr))
 	end
 end
 
@@ -524,13 +529,13 @@ function floatwrite(rsf::_RSF,arr)
         fileflush!(rsf, _infiles[1])
 	end
                 
-    if self.form == "ascii"
+    if rsf.form == "ascii"
         if rsf.aformat == Printf.Format("")
             aformat = Printf.Format("%g ")
         else
             aformat = rsf.aformat
 		end
-        if self.eformat == Printf.Format("")
+        if rsf.eformat == Printf.Format("")
             eformat = Printf.Format("%g ")
         else
             eformat = rsf.eformat
@@ -539,17 +544,17 @@ function floatwrite(rsf::_RSF,arr)
         farr = vec(arr)
         left = size    
         while left > 0
-            nbuf = min(self.aline, left)
+            nbuf = min(rsf.aline, left)
             last = size-left+nbuf
             for i in size-left+1:last-1
-                write(self.stream, Printf.format(aformat, farr[i]))
+                Base.write(rsf.stream, Printf.format(aformat, farr[i]))
 			end
-			write(self.stream, Printf.format(eformat, farr[last]))
-            write(self.stream, "\n")
+			Base.write(rsf.stream, Printf.format(eformat, farr[last]))
+            Base.write(rsf.stream, "\n")
             left -= nbuf
 		end
     else
-		write(rsf.stream, reinterpret(UInt8, arr))
+		Base.write(rsf.stream, reinterpret(UInt8, arr))
 	end
 end
 
@@ -685,3 +690,17 @@ end
 
 getshape(inp::Input) = getshape(inp.file)
 getshape(out::Output) = getshape(out.file)
+
+function fileclose(rsf::_RSF)
+    if rsf.stream != :none && rsf.stream != stdin && rsf.stream != stdout
+        flush(rsf.stream)
+        Base.close(rsf.stream)
+        rsf.stream = :none
+    end
+    if rsf.headname != :none
+        rm(rsf.headname)
+        rsf.headname = :none
+    end
+end
+
+fileclose(out::Output) = fileclose(out.file)
