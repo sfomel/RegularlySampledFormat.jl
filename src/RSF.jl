@@ -19,6 +19,7 @@ function Datapath()
     	path = ENV["DATAPATH"]
 	else
 		path = nothing
+        pathfile = nothing
         try
             pathfile = open(".datapath","r")
 		catch
@@ -29,11 +30,11 @@ function Datapath()
 			end
 		end
         if pathfile != nothing
-			re = "(?:$(Base.Libc.gethostname())\\s+)?datapath=(\\S+)" 
+			re = r"(?:$(Base.Libc.gethostname())\s+)?datapath=(\S+)" 
             for line in readlines(pathfile)
 				check = match(re, line)
                 if check != nothing
-                    path = check.captures(2)
+                    path = check.captures[3]
 				end
 			end
             close(pathfile)

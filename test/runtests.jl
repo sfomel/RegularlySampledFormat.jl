@@ -116,6 +116,15 @@ par = Par("julia",["-"])
 ENV["DATAPATH"] = "/some/value"
 @test Datapath() == "/some/value"
 
+delete!(ENV, "DATAPATH")
+dp = open(".datapath","w") 
+write(dp, "datapath=/other/value")
+close(dp)
+@test Datapath() == "/other/value"
+rm(".datapath")
+
+@test Datapath() == "./"
+
 # check that the temporary file is created in the correct directory    
 ENV["TMPDATAPATH"] = "."
 @test Temp()[1] == '.' 
