@@ -98,14 +98,14 @@ begin
 	mutable struct _RSF
 		stream::IOStream
 		pars::SimTab
-		headname::String
-		head::IOStream
+		headname::Union{String, Symbol}
+		head::Union{IOStream, Symbol}
 		dataname::String
 		pipe::Bool
 		type::DataType
 		form::String
-        aformat::Printf.Format
-        eformat::Printf.Format
+        aformat::Union{Printf.Format, Symbol}
+        eformat::Union{Printf.Format, Symbol}
         aline::Int
 	end
 	
@@ -119,7 +119,8 @@ begin
         If `inp` is true, the function reads from an input RSF file specified by `tag`. 
         If `inp` is false, it prepares for writing to an output RSF file specified by `tag`.
     """
-	function _RSF(inp::Bool, tag=nothing)		
+	function _RSF(inp::Bool, tag=nothing)
+        global _infiles		
 		if inp
 			if tag==nothing || tag=="in"
 				stream = stdin
@@ -165,16 +166,18 @@ begin
 				stream = stdout
 				filename = :none
 			else
+                filename = getstring(tag)
 				if filename == :none
 					filename = tag
 				end
 				stream = open(filename,"w+")
 			end
 			# try piping
+            pipe = true
 			try
 				t = position(stream)
                 pipe = false
-			catch
+            catch
                 pipe = true
 			end
 			if stream == stdout
@@ -217,6 +220,11 @@ begin
 	mutable struct Input
 		file::_RSF
 	end
+    """
+    Input(tag::String) -> Input
+
+    Create an instance of the `Input` struct for reading from an RSF file specified by `tag`.
+    """
 	Input(tag::String) = Input(_RSF(true,tag))
 end
 
@@ -224,6 +232,11 @@ begin
 	mutable struct Output
 		file::_RSF
 	end
+    """
+    Output(tag::String) -> Output
+
+    Create an instance of the `Output` struct for writing to an RSF file specified by `tag`.    
+    """
 	Output(tag::String) = Output(_RSF(false,tag))
 end
 
@@ -233,6 +246,8 @@ end
     Return the data type of the RSF file represented by the `_RSF` struct.
 """
 gettype(rsf::_RSF) = rsf.type
+gettype(inp::Input) = gettype(inp.file)
+gettype(out::Output) = gettype(out.file)
 
 """
     settype!(rsf::_RSF, T::DataType)
@@ -313,6 +328,8 @@ end
     Return the data format of the RSF file represented by the `_RSF` struct.
 """
 getform(rsf::_RSF) = rsf.form
+getform(inp::Input) = getform(inp.file)
+getform(out::Output) = getform(out.file)
 
 """
     setform!(rsf::_RSF, form::String)
@@ -622,3 +639,19 @@ function bytes(rsf::_RSF)
 	end
     return st.size
 end
+
+function getpar(file::_RSF, key::String, T::DataType, default=:none)
+	get, par = getpar(file.pars, key, T)
+	if get 
+        return par
+	else
+        return default
+	end
+end
+
+getint(inp::Input, key::String, default=:none) = getpar(inp.file, key, Int32, default)
+getfloat(inp::Input, key::String, default=:none) = getpar(inp.file, key, Float32, default)
+
+getint(out::Output, key::String, default=:none) = getpar(out.file, key, Int32, default)
+getfloat(out::Output, key::String, default=:none) = getpar(out.file, key, Float32, default)
+

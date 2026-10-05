@@ -164,4 +164,13 @@ putstring!(rsf, "newkey", "newvalue")
 @test tell(rsf) == 0
 @test bytes(rsf) == 10 * sizeof(Float32)
 
+inp = Input("mytest.rsf")
+@test gettype(inp) == Float32
+@test getform(inp) == "xdr"
+@test getint(inp, "n1") == 10
+
+out = Output("mytest_out.rsf")
+@test gettype(out) == Float32
+@test getform(out) == "native"	
+
 end

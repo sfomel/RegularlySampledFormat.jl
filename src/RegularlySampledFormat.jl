@@ -30,6 +30,8 @@ export SimTab,
        setform!,
        putstring!,
        tell,
-       bytes
+       bytes,
+       Input,
+       Output
 
 end
