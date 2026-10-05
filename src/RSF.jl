@@ -259,6 +259,12 @@ function settype!(rsf::_RSF, T::DataType)
 	rsf.type = T
 end
 
+setform!(rsf::Input, form::String) = setform!(rsf.file, form)
+setform!(rsf::Output, form::String) = setform!(rsf.file, form)  
+
+settype!(rsf::Input, T::DataType) = settype!(rsf.file, T)  
+settype!(rsf::Output, T::DataType) = settype!(rsf.file, T)  
+
 """
     putint!(rsf::_RSF, key::String, par::Int)
 
@@ -409,6 +415,9 @@ function getstring(rsf::_RSF, key::String, default=:none)
 	end
 end
 
+getstring(rsf::Input, key::String, default=:none) = getstring(rsf.file, key, default)
+getstring(rsf::Output, key::String, default=:none) = getstring(rsf.file, key, default)
+
 """
     putstring!(rsf::_RSF, key::String, par::String)
 
@@ -422,6 +431,9 @@ function putstring!(rsf::_RSF, key::String, par::String)
     val = "\"$(par)\""
     enter!(rsf.pars, key, val)
 end
+
+putstring!(rsf::Input, key::String, par::String) = putstring!(rsf.file, key, par)
+putstring!(rsf::Output, key::String, par::String) = putstring!(rsf.file, key, par)
 
 """
     fileflush!(rsf::_RSF, src::_RSF)
@@ -626,6 +638,8 @@ end
     Return the current position in the RSF file represented by the `_RSF` struct.
 """
 tell(rsf::_RSF) = position(rsf.stream)
+tell(inp::Input) = tell(inp.file)
+tell(out::Output) = tell(out.file)
 
 """
     bytes(rsf::_RSF) -> Int
@@ -644,6 +658,9 @@ function bytes(rsf::_RSF)
 	end
     return st.size
 end
+
+bytes(inp::Input) = bytes(inp.file)
+bytes(out::Output) = bytes(out.file)
 
 function getpar(file::_RSF, key::String, T::DataType, default=:none)
 	get, par = getpar(file.pars, key, T)

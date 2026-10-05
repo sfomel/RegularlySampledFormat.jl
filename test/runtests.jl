@@ -146,28 +146,23 @@ io = open("mytest.rsf@", "w")
 Base.write(io, Float32[0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
 close(io)
 
-rsf = _RSF(true, "mytest.rsf")
-
-@test gettype(rsf) == Float32
-settype!(rsf, Int32)
-@test gettype(rsf) == Int32
-
-@test getform(rsf) == "xdr"
-setform!(rsf, "native")
-@test getform(rsf) == "native"
-setform!(rsf, "ascii")
-@test getform(rsf) == "ascii"
-
-putstring!(rsf, "newkey", "newvalue")
-@test getstring(rsf, "newkey") == "newvalue"
-
-@test tell(rsf) == 0
-@test bytes(rsf) == 10 * sizeof(Float32)
-
 inp = Input("mytest.rsf")
+
 @test gettype(inp) == Float32
+settype!(inp, Int32)
+@test gettype(inp) == Int32
+
 @test getform(inp) == "xdr"
-@test getint(inp, "n1") == 10
+setform!(inp, "native")
+@test getform(inp) == "native"
+setform!(inp, "ascii")
+@test getform(inp) == "ascii"
+
+putstring!(inp, "newkey", "newvalue")
+@test getstring(inp, "newkey") == "newvalue"
+
+@test tell(inp) == 0
+@test bytes(inp) == 10 * sizeof(Float32)
 
 out = Output("mytest_out.rsf")
 @test gettype(out) == Float32
