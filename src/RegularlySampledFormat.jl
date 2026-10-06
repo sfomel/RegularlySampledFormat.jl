@@ -35,6 +35,7 @@ export SimTab,
        Output,
        RSF,
        getshape,
-       fileclose
+       fileclose,
+       getfilename
 
 end

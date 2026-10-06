@@ -127,7 +127,14 @@ rm(".datapath")
 
 # check that the temporary file is created in the correct directory    
 ENV["TMPDATAPATH"] = "."
-@test Temp()[1] == '.' 
+@test Temp()[1] == '.'
+
+delete!(ENV, "TMPDATAPATH")
+@test Temp()[1] == '.'
+
+io = open("/dev/null", "w")
+@test getfilename(io) == "/dev/null"
+close(io)
 
 io = open("mytest.rsf", "w")
 Base.write(io, """
