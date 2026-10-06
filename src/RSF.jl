@@ -283,12 +283,12 @@ end
 putint!(rsf::Output, key::String, par::Int) = putint!(rsf.file, key, par)
 
 """
-    putfloat!(rsf::_RSF, key::String, par::Float)
+    putints!(rsf::_RSF, key::String, par::Array{Int}, n::Int)   
 
-    Write a float parameter to the RSF file represented by the `_RSF` struct. 
-    The parameter is associated with the specified `key`.
+    Write an array of integer parameters to the RSF file represented by the `_RSF` struct.
+    The parameters are associated with the specified `key`. The array has length `n`.
 """
-function putints!(rsf::_RSF,key::String,par::Array{Int},n::Int)
+function putints!(rsf::_RSF,key::String,par::Array{Int32},n::Int)
     if :one == rsf.dataname
         throw("putints to a closed file")
 	end
@@ -300,19 +300,23 @@ function putints!(rsf::_RSF,key::String,par::Array{Int},n::Int)
     enter!(rsf.pars, key, val)
 end
 
-"""
-    putfloats!(rsf::_RSF,key::String,par::Array{Float32},n::Int)
+putints!(rsf::Output,key::String,par::Array{Int32},n::Int) = putints!(rsf.file,key,par,n)
 
-    Write an array of float parameters to the RSF file represented by the `_RSF` struct. 
-    The parameters are associated with the specified `key`.
 """
-function putfloat!(rsf::_RSF, key::String, par::Float32)
+    putfloat!(rsf::_RSF, key::String, val::Float32) -> Nothing
+
+    Write a float parameter to the RSF file represented by the `_RSF` struct. 
+    The parameter is associated with the specified `key`.
+"""
+function putfloat!(rsf::_RSF, key::String, val::Float32)
     if :none == rsf.dataname
         throw("putint to a closed file")
 	end
     val = "$par"
     enter!(rsf.pars, key, val)
 end
+
+putfloat!(rsf::Output,key::String,val::Float32) = putfloat!(rsf.file,key,val)
 
 """
     putfloats!(rsf::_RSF,key::String,par::Array{Float32},n::Int)
@@ -331,6 +335,8 @@ function putfloats!(rsf::_RSF,key::String,par::Array{Float32},n::Int)
     val *= "$(par[n])"
     enter!(rsf.pars, key, val)
 end
+
+putfloats!(rsf::Output,key::String,par::Array{Float32},n::Int) = putfloats!(rsf.file,key,par,n)
 
 """
     getform(rsf::_RSF) -> String

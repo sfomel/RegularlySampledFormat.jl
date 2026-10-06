@@ -193,6 +193,9 @@ setform!(out, "xdr")
 @test getform(out) == "xdr"
 putstring!(out, "newkey", "newvalue")
 putint!(out, "n1", 10)
+putfloat!(out, "d1", 0.004f0)
+putints!(out, "ns", Int32[1, 2, 3], 3)
+putfloats!(out, "fs", Float32[1.0, 2.0, 3.0], 3)
 datawrite(out, Int32[0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
 fileclose(out)
 
