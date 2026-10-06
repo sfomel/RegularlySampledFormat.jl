@@ -34,7 +34,7 @@ begin
             for axis in 1:dims
                 putint!(file, "n$axis", shape[axis])
             end
-            write(file, data)
+            datawrite(file, data)
             fileclose(file)
             return RSF(name)
         end

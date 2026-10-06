@@ -118,7 +118,7 @@ ENV["DATAPATH"] = "/some/value"
 
 delete!(ENV, "DATAPATH")
 dp = open(".datapath","w") 
-write(dp, "datapath=/other/value")
+Base.write(dp, "datapath=/other/value")
 close(dp)
 @test Datapath() == "/other/value"
 rm(".datapath")
@@ -134,6 +134,10 @@ delete!(ENV, "TMPDATAPATH")
 
 io = open("/dev/null", "w")
 @test getfilename(io) == "/dev/null"
+close(io)
+
+io = open("/tmp/junk", "w")
+@test getfilename(io) == :none
 close(io)
 
 io = open("mytest.rsf", "w")
@@ -183,6 +187,14 @@ putstring!(inp, "newkey", "newvalue")
 out = Output("mytest_out.rsf")
 @test gettype(out) == Float32
 @test getform(out) == "native"	
+settype!(out, Int32)
+@test gettype(out) == Int32
+setform!(out, "xdr")
+@test getform(out) == "xdr"
+putstring!(out, "newkey", "newvalue")
+putint!(out, "n1", 10)
+datawrite(out, Int32[0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
+fileclose(out)
 
 @test getshape(inp) == (10,)
 

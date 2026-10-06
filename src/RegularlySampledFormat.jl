@@ -28,6 +28,7 @@ export SimTab,
        settype!,
        getform,   
        setform!,
+       putint!,
        putstring!,
        tell,
        bytes,
@@ -36,6 +37,8 @@ export SimTab,
        RSF,
        getshape,
        fileclose,
-       getfilename
+       getfilename,
+       datawrite,
+       dataread!
 
 end

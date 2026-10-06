@@ -602,11 +602,11 @@ function floatread!(rsf::_RSF, arr)
 end
 
 """
-    read!(inp::Input, data::Array)
+    dataread!(inp::Input, data::Array)
 
     Read data from the RSF file represented by the `Input` struct into the provided `data` array.
 """
-function read!(inp::Input, data::Array)
+function dataread!(inp::Input, data::Array)
 	type = inp.file.type
 	if type == Float32
         floatread!(inp.file, data)
@@ -618,11 +618,11 @@ function read!(inp::Input, data::Array)
 end
 
 """
-    write(out::Output, data::Array)
+    datawrite(out::Output, data::Array)
 
     Write data from the provided `data` array to the RSF file represented by the `Output` struct.
 """
-function write(out::Output, data::Array)
+function datawrite(out::Output, data::Array)
 	type = out.file.type
 	if type == Float32
         floatwrite(out.file, data)
