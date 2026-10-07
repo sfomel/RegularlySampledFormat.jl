@@ -192,11 +192,16 @@ settype!(out, Int32)
 setform!(out, "xdr")
 @test getform(out) == "xdr"
 putstring!(out, "newkey", "newvalue")
+@test getstring(out, "newkey") == "newvalue"
 putint!(out, "n1", 10)
 putfloat!(out, "d1", 0.004f0)
 putints!(out, "ns", Int32[1, 2, 3], 3)
 putfloats!(out, "fs", Float32[1.0, 2.0, 3.0], 3)
 datawrite(out, Int32[0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
+setformat!(out, "ascii_byte")
+@test getform(out) == "ascii"
+@test gettype(out) == UInt8
+@test getshape(out) == (10,)
 fileclose(out)
 
 @test getshape(inp) == (10,)
