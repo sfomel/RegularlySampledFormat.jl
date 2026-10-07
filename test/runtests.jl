@@ -116,9 +116,29 @@ par = Par("julia",["-"])
 ENV["DATAPATH"] = "/some/value"
 @test Datapath() == "/some/value"
 
+delete!(ENV, "DATAPATH")
+dp = open(".datapath","w") 
+Base.write(dp, "datapath=/other/value")
+close(dp)
+@test Datapath() == "/other/value"
+rm(".datapath")
+
+@test Datapath() == "./"
+
 # check that the temporary file is created in the correct directory    
 ENV["TMPDATAPATH"] = "."
-@test Temp()[1] == '.' 
+@test Temp()[1] == '.'
+
+delete!(ENV, "TMPDATAPATH")
+@test Temp()[1] == '.'
+
+io = open("/dev/null", "w")
+@test getfilename(io) == "/dev/null"
+close(io)
+
+io = open("/tmp/junk", "w")
+@test getfilename(io) == :none
+close(io)
 
 io = open("mytest.rsf", "w")
 Base.write(io, """
@@ -146,31 +166,61 @@ io = open("mytest.rsf@", "w")
 Base.write(io, Float32[0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
 close(io)
 
-rsf = _RSF(true, "mytest.rsf")
-
-@test gettype(rsf) == Float32
-settype!(rsf, Int32)
-@test gettype(rsf) == Int32
-
-@test getform(rsf) == "xdr"
-setform!(rsf, "native")
-@test getform(rsf) == "native"
-setform!(rsf, "ascii")
-@test getform(rsf) == "ascii"
-
-putstring!(rsf, "newkey", "newvalue")
-@test getstring(rsf, "newkey") == "newvalue"
-
-@test tell(rsf) == 0
-@test bytes(rsf) == 10 * sizeof(Float32)
-
 inp = Input("mytest.rsf")
+
 @test gettype(inp) == Float32
+settype!(inp, Int32)
+@test gettype(inp) == Int32
+
 @test getform(inp) == "xdr"
-@test getint(inp, "n1") == 10
+setform!(inp, "native")
+@test getform(inp) == "native"
+setform!(inp, "ascii")
+@test getform(inp) == "ascii"
+
+putstring!(inp, "newkey", "newvalue")
+@test getstring(inp, "newkey") == "newvalue"
+
+@test tell(inp) == 0
+@test bytes(inp) == 10 * sizeof(Float32)
 
 out = Output("mytest_out.rsf")
 @test gettype(out) == Float32
 @test getform(out) == "native"	
+settype!(out, Int32)
+@test gettype(out) == Int32
+setform!(out, "xdr")
+@test getform(out) == "xdr"
+putstring!(out, "newkey", "newvalue")
+@test getstring(out, "newkey") == "newvalue"
+putint!(out, "n1", 10)
+putint!(out, "n2", 1)
+putint!(out, "n3", 1)
+@test getint(out, "n1") == 10
+@test getint(out, "m1") == :none
+@test getint(out, "m1", 1) == 1
+putfloat!(out, "d1", 0.004f0)
+@test getfloat(out, "d1") ≈ 0.004f0
+@test getfloat(out, "d2") == :none
+@test getfloat(out, "d2", 0.0f0) == 0.0f0
+putints!(out, "ns", Int32[1, 2, 3], 3)
+putfloats!(out, "fs", Float32[1.0, 2.0, 3.0], 3)
+datawrite(out, Int32[0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
+setformat!(out, "ascii_byte")
+@test getform(out) == "ascii"
+@test gettype(out) == UInt8
+@test getshape(out) == (10,)
+fileclose(out)
+
+@test getshape(inp) == (10,)
+
+file = RSF("mytest.rsf")
+
+@test getshape(file) == (10,)
+
+data = ones(Float32, 5, 4)
+file = RSF(data)
+
+@test getshape(file) == (5, 4)
 
 end

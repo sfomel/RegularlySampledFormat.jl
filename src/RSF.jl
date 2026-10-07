@@ -2,6 +2,7 @@
 # as well as some utility functions for handling RSF data.
 
 using Printf
+using Dates
 
 """
     Datapath() -> String
@@ -18,6 +19,7 @@ function Datapath()
     	path = ENV["DATAPATH"]
 	else
 		path = nothing
+        pathfile = nothing
         try
             pathfile = open(".datapath","r")
 		catch
@@ -28,11 +30,11 @@ function Datapath()
 			end
 		end
         if pathfile != nothing
-			re = "(?:$(Base.Libc.gethostname())\\s+)?datapath=(\\S+)" 
+			re = r"(?:$(Base.Libc.gethostname())\s+)?datapath=(\S+)" 
             for line in readlines(pathfile)
 				check = match(re, line)
                 if check != nothing
-                    path = check.captures(2)
+                    path = check.captures[3]
 				end
 			end
             close(pathfile)
@@ -96,7 +98,7 @@ end
 
 begin
 	mutable struct _RSF
-		stream::IOStream
+		stream::Union{IOStream, Symbol}
 		pars::SimTab
 		headname::Union{String, Symbol}
 		head::Union{IOStream, Symbol}
@@ -258,6 +260,12 @@ function settype!(rsf::_RSF, T::DataType)
 	rsf.type = T
 end
 
+setform!(rsf::Input, form::String) = setform!(rsf.file, form)
+setform!(rsf::Output, form::String) = setform!(rsf.file, form)  
+
+settype!(rsf::Input, T::DataType) = settype!(rsf.file, T)  
+settype!(rsf::Output, T::DataType) = settype!(rsf.file, T)  
+
 """
     putint!(rsf::_RSF, key::String, par::Int)
 
@@ -272,13 +280,15 @@ function putint!(rsf::_RSF, key::String, par::Int)
     enter!(rsf.pars, key, val)
 end
 
-"""
-    putfloat!(rsf::_RSF, key::String, par::Float)
+putint!(rsf::Output, key::String, par::Int) = putint!(rsf.file, key, par)
 
-    Write a float parameter to the RSF file represented by the `_RSF` struct. 
-    The parameter is associated with the specified `key`.
 """
-function putints!(rsf::_RSF,key::String,par::Array{Int},n::Int)
+    putints!(rsf::_RSF, key::String, par::Array{Int}, n::Int)   
+
+    Write an array of integer parameters to the RSF file represented by the `_RSF` struct.
+    The parameters are associated with the specified `key`. The array has length `n`.
+"""
+function putints!(rsf::_RSF,key::String,par::Array{Int32},n::Int)
     if :one == rsf.dataname
         throw("putints to a closed file")
 	end
@@ -290,11 +300,13 @@ function putints!(rsf::_RSF,key::String,par::Array{Int},n::Int)
     enter!(rsf.pars, key, val)
 end
 
-"""
-    putfloats!(rsf::_RSF,key::String,par::Array{Float32},n::Int)
+putints!(rsf::Output,key::String,par::Array{Int32},n::Int) = putints!(rsf.file,key,par,n)
 
-    Write an array of float parameters to the RSF file represented by the `_RSF` struct. 
-    The parameters are associated with the specified `key`.
+"""
+    putfloat!(rsf::_RSF, key::String, val::Float32) -> Nothing
+
+    Write a float parameter to the RSF file represented by the `_RSF` struct. 
+    The parameter is associated with the specified `key`.
 """
 function putfloat!(rsf::_RSF, key::String, par::Float32)
     if :none == rsf.dataname
@@ -303,6 +315,8 @@ function putfloat!(rsf::_RSF, key::String, par::Float32)
     val = "$par"
     enter!(rsf.pars, key, val)
 end
+
+putfloat!(rsf::Output,key::String,val::Float32) = putfloat!(rsf.file,key,val)
 
 """
     putfloats!(rsf::_RSF,key::String,par::Array{Float32},n::Int)
@@ -321,6 +335,8 @@ function putfloats!(rsf::_RSF,key::String,par::Array{Float32},n::Int)
     val *= "$(par[n])"
     enter!(rsf.pars, key, val)
 end
+
+putfloats!(rsf::Output,key::String,par::Array{Float32},n::Int) = putfloats!(rsf.file,key,par,n)
 
 """
     getform(rsf::_RSF) -> String
@@ -389,6 +405,8 @@ function setformat!(rsf::_RSF, dataformat::String)
 	end
 end
 
+setformat!(rsf::Output, dataformat::String) = setformat!(rsf.file, dataformat)
+
 """
     getstring(rsf::_RSF, key::String, default=:none) -> String
 
@@ -404,6 +422,9 @@ function getstring(rsf::_RSF, key::String, default=:none)
 	end
 end
 
+getstring(rsf::Input, key::String, default=:none) = getstring(rsf.file, key, default)
+getstring(rsf::Output, key::String, default=:none) = getstring(rsf.file, key, default)
+
 """
     putstring!(rsf::_RSF, key::String, par::String)
 
@@ -418,20 +439,23 @@ function putstring!(rsf::_RSF, key::String, par::String)
     enter!(rsf.pars, key, val)
 end
 
+putstring!(rsf::Input, key::String, par::String) = putstring!(rsf.file, key, par)
+putstring!(rsf::Output, key::String, par::String) = putstring!(rsf.file, key, par)
+
 """
     fileflush!(rsf::_RSF, src::_RSF)
 
     Flush the contents of the RSF file represented by the `_RSF` struct to disk. 
     If `src` is provided, it also flushes the contents of the source RSF file to the destination.
 """
-function fileflush!(rsf::_RSF, src::_RSF)
+function fileflush!(rsf::_RSF, src::Union{_RSF, Symbol})
     if :none == rsf.dataname
         return
 	end
     if :none != src && :none != src.head
         seek(src.head,0)
 		for line in eachline(src.head)
-			write(line, rsf.stream)
+			Base.write(rsf.stream, line * "\n")
 		end
 	end
 
@@ -440,7 +464,7 @@ function fileflush!(rsf::_RSF, src::_RSF)
 	now = Dates.now()
 	time = Dates.format(now, "e, dd u yyyy HH:MM:SS")
 	line = "$(getprog(par))\t$(pwd())\t$(username)\t$(gethostname())\t$(now)\n"
-	write(line, rsf.stream)
+	Base.write(rsf.stream, line)
 
     putstring!(rsf, "data_format", join([rsf.form,rsf.type],"-"))
     output(rsf.pars, rsf.stream)
@@ -448,7 +472,7 @@ function fileflush!(rsf::_RSF, src::_RSF)
 
     if rsf.dataname == "stdout"
         # keep stream, write the header end code
-        write(rsf.stream, "\tin=\"stdin\"\n\n\x0c\x0c\x04")
+        Base.write(rsf.stream, "\tin=\"stdin\"\n\n\x0c\x0c\x04")
         flush(rsf.stream)
     else                 
         rsf.stream = open(rsf.dataname,"w+b")
@@ -472,7 +496,7 @@ function ucharwrite(rsf::_RSF, arr)
     if :none != rsf.dataname
         fileflush!(rsf, _infiles[1])
 	end
-	write(rsf.stream, reinterpret(UInt8, arr))
+	Base.write(rsf.stream, reinterpret(UInt8, arr))
 end
 
 """
@@ -485,13 +509,13 @@ function intwrite(rsf::_RSF,arr)
         fileflush!(rsf, _infiles[1])
 	end
                 
-    if self.form == "ascii"
+    if rsf.form == "ascii"
         if rsf.aformat == Printf.Format("")
             aformat = Printf.Format("%d ")
         else
             aformat = rsf.aformat
 		end
-        if self.eformat == Printf.Format("")
+        if rsf.eformat == Printf.Format("")
             eformat = Printf.Format("%d ")
         else
             eformat = rsf.eformat
@@ -500,17 +524,17 @@ function intwrite(rsf::_RSF,arr)
         farr = vec(arr)
         left = size    
         while left > 0
-            nbuf = min(self.aline, left)
+            nbuf = min(rsf.aline, left)
             last = size-left+nbuf
             for i in size-left+1:last-1
-                write(self.stream, Printf.format(aformat, farr[i]))
+                Base.write(rsf.stream, Printf.format(aformat, farr[i]))
 			end
-			write(self.stream, Printf.format(eformat, farr[last]))
-            write(self.stream, "\n")
+			Base.write(rsf.stream, Printf.format(eformat, farr[last]))
+            Base.write(rsf.stream, "\n")
             left -= nbuf
 		end
     else
-		write(rsf.stream, reinterpret(UInt8, arr))
+		Base.write(rsf.stream, reinterpret(UInt8, arr))
 	end
 end
 
@@ -524,13 +548,13 @@ function floatwrite(rsf::_RSF,arr)
         fileflush!(rsf, _infiles[1])
 	end
                 
-    if self.form == "ascii"
+    if rsf.form == "ascii"
         if rsf.aformat == Printf.Format("")
             aformat = Printf.Format("%g ")
         else
             aformat = rsf.aformat
 		end
-        if self.eformat == Printf.Format("")
+        if rsf.eformat == Printf.Format("")
             eformat = Printf.Format("%g ")
         else
             eformat = rsf.eformat
@@ -539,17 +563,17 @@ function floatwrite(rsf::_RSF,arr)
         farr = vec(arr)
         left = size    
         while left > 0
-            nbuf = min(self.aline, left)
+            nbuf = min(rsf.aline, left)
             last = size-left+nbuf
             for i in size-left+1:last-1
-                write(self.stream, Printf.format(aformat, farr[i]))
+                Base.write(rsf.stream, Printf.format(aformat, farr[i]))
 			end
-			write(self.stream, Printf.format(eformat, farr[last]))
-            write(self.stream, "\n")
+			Base.write(rsf.stream, Printf.format(eformat, farr[last]))
+            Base.write(rsf.stream, "\n")
             left -= nbuf
 		end
     else
-		write(rsf.stream, reinterpret(UInt8, arr))
+		Base.write(rsf.stream, reinterpret(UInt8, arr))
 	end
 end
 
@@ -584,11 +608,11 @@ function floatread!(rsf::_RSF, arr)
 end
 
 """
-    read!(inp::Input, data::Array)
+    dataread!(inp::Input, data::Array)
 
     Read data from the RSF file represented by the `Input` struct into the provided `data` array.
 """
-function read!(inp::Input, data::Array)
+function dataread!(inp::Input, data::Array)
 	type = inp.file.type
 	if type == Float32
         floatread!(inp.file, data)
@@ -600,11 +624,11 @@ function read!(inp::Input, data::Array)
 end
 
 """
-    write(out::Output, data::Array)
+    datawrite(out::Output, data::Array)
 
     Write data from the provided `data` array to the RSF file represented by the `Output` struct.
 """
-function write(out::Output, data::Array)
+function datawrite(out::Output, data::Array)
 	type = out.file.type
 	if type == Float32
         floatwrite(out.file, data)
@@ -621,6 +645,8 @@ end
     Return the current position in the RSF file represented by the `_RSF` struct.
 """
 tell(rsf::_RSF) = position(rsf.stream)
+tell(inp::Input) = tell(inp.file)
+tell(out::Output) = tell(out.file)
 
 """
     bytes(rsf::_RSF) -> Int
@@ -640,6 +666,9 @@ function bytes(rsf::_RSF)
     return st.size
 end
 
+bytes(inp::Input) = bytes(inp.file)
+bytes(out::Output) = bytes(out.file)
+
 function getpar(file::_RSF, key::String, T::DataType, default=:none)
 	get, par = getpar(file.pars, key, T)
 	if get 
@@ -655,3 +684,47 @@ getfloat(inp::Input, key::String, default=:none) = getpar(inp.file, key, Float32
 getint(out::Output, key::String, default=:none) = getpar(out.file, key, Int32, default)
 getfloat(out::Output, key::String, default=:none) = getpar(out.file, key, Float32, default)
 
+"""
+    getshape(rsf::_RSF) -> Array{Int}
+
+    Extract the shape of the data from the RSF file represented by the `_RSF` struct. 
+    The function returns an array of integers representing the dimensions of the data.
+"""
+function getshape(rsf::_RSF)
+    s = Array{Int}(undef, 0)
+    dim = 1
+    # check for n1, n2, ..., n9 parameters in the RSF file
+    for i in 1:9
+        ni = getpar(rsf, "n$i", Int)
+        if ni != :none
+            dim = i
+            push!(s, ni)
+        end
+    end
+    # remove trailing dimensions of size 1
+    for i = dim:-1:1
+        if s[i] <= 1
+            pop!(s)
+        else
+            break
+        end
+    end
+    return Tuple(s)
+end
+
+getshape(inp::Input) = getshape(inp.file)
+getshape(out::Output) = getshape(out.file)
+
+function fileclose(rsf::_RSF)
+    if rsf.stream != :none && rsf.stream != stdin && rsf.stream != stdout
+        flush(rsf.stream)
+        Base.close(rsf.stream)
+        rsf.stream = :none
+    end
+    if rsf.headname != :none
+        rm(rsf.headname)
+        rsf.headname = :none
+    end
+end
+
+fileclose(out::Output) = fileclose(out.file)
