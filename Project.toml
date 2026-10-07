@@ -15,7 +15,7 @@ Dates = "1.10.12"
 DelimitedFiles = "1.9.1"
 DocumenterTools = "0.1.21"
 Mmap = "1.10.12"
-Printf = "1.10.12"
+Printf = "1.10, 1.10.12"
 julia = "1.10.10"
 
 [extras]
