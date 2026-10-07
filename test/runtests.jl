@@ -5,9 +5,20 @@ using Test
 
 # Tests for Par struct
 
-par = Par("julia",["-"])
+pf = open("parfile.txt","w") 
+Base.write(pf, "i1=2\n")
+Base.write(pf, "s1=string\n")
+close(pf)
 
-@test getprog(par) == "julia"
+RegularlySampledFormat.par = Par("julia",["-","i1=1","r1=2.0","b1=y","ns=1,2,3","par=parfile.txt"])
+
+@test getint("i1") == 2
+@test getfloat("r1") ≈ 2.0
+@test getbool("b1") == true	
+@test getints("ns", 3) == [1,2,3]
+@test getstring("s1") == "string"
+
+@test getprog(RegularlySampledFormat.par) == "julia"
 @test getint("c") == :none
 @test getint("c", 4) == 4
 @test getfloat("b") == :none

@@ -37,9 +37,9 @@ getprog(p::Par) = p.prog
 	If the key is not found, return the `default` value.
 """
 function getpar(p::Par, key::String, T::DataType, default=:none)
-	get, par = getpar(p.pars, key, T)
+	get, val = getpar(p.pars, key, T)
 	if get 
-        return par
+        return val
 	else
         return default
 	end
@@ -67,7 +67,14 @@ getfloat(key::String, default=:none) = getpar(par, key, Float32, default)
 	Extract a boolean parameter from the parameter table `par` for a given `key`. 
 	If the key is not found, return the `default` value.
 """
-getbool(key::String, default=:none) = getpar(par, key, Bool, default)
+function getbool(key::String, default=:none) 
+	get, val = getbool(par.pars, key)
+	if get 
+        return val
+	else
+        return default
+	end
+end
 
 """
 	getstring(key, default)
@@ -75,7 +82,14 @@ getbool(key::String, default=:none) = getpar(par, key, Bool, default)
 	Extract a string parameter from the parameter table `par` for a given `key`. 
 	If the key is not found, return the `default` value.
 """
-getstring(key::String, default=:none) = getpar(par, key, String, default)
+function getstring(key::String, default=:none)
+	val = getstring(par.pars, key)
+	if val != :none
+        return val
+	else
+        return default
+	end
+end
 
 """
 	getpars(p, key, n, T, default)
