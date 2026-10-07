@@ -308,7 +308,7 @@ putints!(rsf::Output,key::String,par::Array{Int32},n::Int) = putints!(rsf.file,k
     Write a float parameter to the RSF file represented by the `_RSF` struct. 
     The parameter is associated with the specified `key`.
 """
-function putfloat!(rsf::_RSF, key::String, val::Float32)
+function putfloat!(rsf::_RSF, key::String, par::Float32)
     if :none == rsf.dataname
         throw("putint to a closed file")
 	end

@@ -194,7 +194,15 @@ setform!(out, "xdr")
 putstring!(out, "newkey", "newvalue")
 @test getstring(out, "newkey") == "newvalue"
 putint!(out, "n1", 10)
+putint!(out, "n2", 1)
+putint!(out, "n3", 1)
+@test getint(out, "n1") == 10
+@test getint(out, "m1") == :none
+@test getint(out, "m1", 1) == 1
 putfloat!(out, "d1", 0.004f0)
+@test getfloat(out, "d1") ≈ 0.004f0
+@test getfloat(out, "d2") == :none
+@test getfloat(out, "d2", 0.0f0) == 0.0f0
 putints!(out, "ns", Int32[1, 2, 3], 3)
 putfloats!(out, "fs", Float32[1.0, 2.0, 3.0], 3)
 datawrite(out, Int32[0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
