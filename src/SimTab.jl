@@ -185,33 +185,3 @@ function getbools(t::SimTab, key::String, n::Int)
         return true, bools
 	end
 end
-
-"""
-	getint(t, key)
-
-	Extract an integer parameter from the symbolic table `t` for a given `key`.
-"""
-getint(t::SimTab, key::String) = getpar(t, key, Int32)
-
-"""
-	getints(t, key, n)
-
-	Extract an array of integer parameters from the symbolic table `t` for a given `key`. 
-	The array will have length `n`. If the number of values in the table is less than `n`, the last value will be repeated to fill the array. If the number of values is greater than `n`, only the first `n` values will be returned.
-"""
-getints(t::SimTab, key::String, n::Int) = getpars(t, key, n, Int32)
-
-"""
-	getfloat(t, key)
-
-	Extract a float parameter from the symbolic table `t` for a given `key`.
-"""
-getfloat(t::SimTab, key::String) = getpar(t, key, Float32)
-
-"""
-	getfloats(t, key, n)
-
-	Extract an array of float parameters from the symbolic table `t` for a given `key`. 
-	The array will have length `n`. If the number of values in the table is less than `n`, the last value will be repeated to fill the array. If the number of values is greater than `n`, only the first `n` values will be returned.
-"""
-getfloats(t::SimTab, key::String, n::Int) = getpars(t, key, n, Float32)

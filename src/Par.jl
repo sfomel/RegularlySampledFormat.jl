@@ -135,4 +135,18 @@ getfloats(key::String, n::Int, default=:none) = getpars(par, key, n, Float32, de
 	Extract an array of boolean parameters from the parameter table `par` for a given `key`. 
 	The array will have length `n`. If the number of values in the table is less than `n`, the last value will be repeated to fill the array. If the number of values is greater than `n`, only the first `n` values will be returned. If the key is not found, return the `default` value.
 """
-getbools(key::String, n::Int, default=:none) = getpars(par, key, n, Bool, default)
+function getbools(key::String, n::Int, default=:none)
+	get, pars = getbools(par.pars, key, n)
+	if get == false	&& default != :none 
+		nval = length(default)
+        # set array to length n
+        if n < nval
+            pars = default[1:n]
+		elseif n > nval
+	    	pars = vcat(default, repeat([default[nval]], n-nval))
+		else
+			pars = default
+		end
+	end
+	return pars
+end
