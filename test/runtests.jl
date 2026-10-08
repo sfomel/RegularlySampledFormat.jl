@@ -97,18 +97,28 @@ inp = Input("mytest.rsf")
 @test gettype(inp) == Float32
 settype!(inp, Int32)
 @test gettype(inp) == Int32
+settype!(inp, Float32)
 
 @test getform(inp) == "xdr"
 setform!(inp, "native")
 @test getform(inp) == "native"
 setform!(inp, "ascii")
 @test getform(inp) == "ascii"
+setform!(inp, "native")
+
+@test getint(inp, "n1", 10) == 10
+@test getfloat(inp, "d1") ≈ 0.004
 
 putstring!(inp, "newkey", "newvalue")
 @test getstring(inp, "newkey") == "newvalue"
 
 @test tell(inp) == 0
 @test bytes(inp) == 10 * sizeof(Float32)
+arr = Array{Float32}(undef, 5)
+dataread!(inp, arr)
+@test arr == Float32[0, 0, 0, 0, 1]
+dataread!(inp, arr)
+@test arr == Float32[0, 0, 0, 0, 0]
 
 out = Output("mytest_out.rsf")
 @test gettype(out) == Float32
@@ -139,6 +149,7 @@ setformat!(out, "ascii_byte")
 @test getform(out) == "ascii"
 @test gettype(out) == UInt8
 @test getshape(out) == (10,)
+@test bytes(out) == 0
 fileclose(out)
 
 @test getshape(inp) == (10,)
