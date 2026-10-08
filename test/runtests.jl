@@ -144,23 +144,39 @@ putfloat!(out, "d1", 0.004f0)
 putints!(out, "ns", Int32[1, 2, 3], 3)
 putfloats!(out, "fs", Float32[1.0, 2.0, 3.0], 3)
 datawrite(out, Int32[0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
-@test getstring(out,"in") == :none # wrong?
+@test getstring(out,"in") == "./mytest_out.rsf@"
 setformat!(out, "ascii_byte")
 @test getform(out) == "ascii"
 @test gettype(out) == UInt8
 @test getshape(out) == (10,)
 @test bytes(out) == 0
+@test tell(out) == 40
 fileclose(out)
 
-@test getshape(inp) == (10,)
+out = Output("mytest_out.rsf")
+settype!(out, Int32)
+setform!(out, "ascii")
+putint!(out,"n1",5)
+putint!(out,"n2",2)
+datawrite(out, Int32[0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
+fileclose(out)
+
+inp = Input("mytest_out.rsf")
+@test gettype(inp) == Int32
+@test getform(inp) == "ascii"
+@test getint(inp, "n1") == 5
+@test getint(inp, "n2") == 2
+@test getshape(inp) == (5,2)
+arr = Array{Int32}(undef, 10)
+dataread!(inp, arr)
+@test arr == [0, 0, 0, 0, 1, 0, 0, 0, 0, 0]
+fileclose(inp)
 
 file = RSF("mytest.rsf")
-
 @test getshape(file) == (10,)
 
 data = ones(Float32, 5, 4)
 file = RSF(data)
-
 @test getshape(file) == (5, 4)
 
 end

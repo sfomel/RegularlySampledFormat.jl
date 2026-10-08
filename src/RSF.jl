@@ -3,6 +3,7 @@
 
 using Printf
 using Dates
+using DelimitedFiles
 
 """
     Datapath() -> String
@@ -79,11 +80,12 @@ function getfilename(stream::IOStream)
     if inode == stat(f).inode
         found_stdout = true
     else        
-        for f in readdir(".")
+        for fl in readdir(".")
             # Comparing the unique file ID stored by the OS for the file stream
             # with the known entries in the file table:
-            if isfile(f) && inode == stat(f).inode
+            if isfile(fl) && inode == stat(fl).inode
                 found_stdout = true
+                f = fl
                 break
 			end
 		end
@@ -102,7 +104,7 @@ begin
 		pars::SimTab
 		headname::Union{String, Symbol}
 		head::Union{IOStream, Symbol}
-		dataname::String
+		dataname::Union{String,Symbol}
 		pipe::Bool
 		type::DataType
 		form::String
@@ -149,7 +151,7 @@ begin
 			if filename != "stdin"
 				stream = open(filename,"r+")
 			end
-			new = _RSF(stream, pars, headname, head, dataname, false, Float32, "native", Printf.Format(""), Printf.Format(""), 8)
+			new = _RSF(stream, pars, headname, head, dataname, false, Float32, "native", :none, :none, 8)
 			# keep track of input files
             if filename == :none
 				_infiles[1] = new
@@ -163,7 +165,7 @@ begin
             end
             setformat!(new, data_format)
 			return new
-		else
+		else # output
 			if tag==nothing || tag=="out"
 				stream = stdout
 				filename = :none
@@ -206,6 +208,8 @@ begin
                 dataname = filename
 			end
 			new = _RSF(stream, SimTab(), :none, :none, dataname, pipe, Float32, "native", :none, :none, 8)
+            # set dataname
+            putstring!(new, "in", dataname)
             # set format
             if _infiles[1] != :none
                 data_format = getstring(_infiles[1], "data_format", "native_float")
@@ -359,8 +363,8 @@ function setform!(rsf::_RSF, form::String)
         if :none != rsf.dataname
            putint!(rsf, "esize", 0) # for compatibility with SEPlib
 		end
-        rsf.aformat = Printf.Format("")
-        rsf.eformat = Printf.Format("")
+        rsf.aformat = :none
+        rsf.eformat = :none
         rsf.aline = 8
 	end
 end
@@ -449,6 +453,15 @@ putstring!(rsf::Output, key::String, par::String) = putstring!(rsf.file, key, pa
     If `src` is provided, it also flushes the contents of the source RSF file to the destination.
 """
 function fileflush!(rsf::_RSF, src::Union{_RSF, Symbol})
+    types = Dict(Float32 => "float",
+	    		 Int32 => "int",
+				 ComplexF32 => "complex",
+				 UInt8 => "uchar",
+				 Int8 => "char",
+				 Int16 => "short",
+				 Int64 => "long",
+				 Float64 => "double"
+				)
     if :none == rsf.dataname
         return
 	end
@@ -466,7 +479,7 @@ function fileflush!(rsf::_RSF, src::Union{_RSF, Symbol})
 	line = "$(getprog(par))\t$(pwd())\t$(username)\t$(gethostname())\t$(now)\n"
 	Base.write(rsf.stream, line)
 
-    putstring!(rsf, "data_format", join([rsf.form,rsf.type],"-"))
+    putstring!(rsf, "data_format", join([rsf.form,types[rsf.type]],"_"))
     output(rsf.pars, rsf.stream)
     flush(rsf.stream)
 
@@ -475,7 +488,7 @@ function fileflush!(rsf::_RSF, src::Union{_RSF, Symbol})
         Base.write(rsf.stream, "\tin=\"stdin\"\n\n\x0c\x0c\x04")
         flush(rsf.stream)
     else                 
-        rsf.stream = open(rsf.dataname,"w+b")
+        rsf.stream = open(rsf.dataname,"w+")
         rsf.dataname = :none
 	end
 end
@@ -510,12 +523,12 @@ function intwrite(rsf::_RSF,arr)
 	end
                 
     if rsf.form == "ascii"
-        if rsf.aformat == Printf.Format("")
+        if rsf.aformat == :none
             aformat = Printf.Format("%d ")
         else
             aformat = rsf.aformat
 		end
-        if rsf.eformat == Printf.Format("")
+        if rsf.eformat == :none
             eformat = Printf.Format("%d ")
         else
             eformat = rsf.eformat
@@ -549,12 +562,12 @@ function floatwrite(rsf::_RSF,arr)
 	end
                 
     if rsf.form == "ascii"
-        if rsf.aformat == Printf.Format("")
+        if rsf.aformat == :none
             aformat = Printf.Format("%g ")
         else
             aformat = rsf.aformat
 		end
-        if rsf.eformat == Printf.Format("")
+        if rsf.eformat == :none
             eformat = Printf.Format("%g ")
         else
             eformat = rsf.eformat
@@ -584,7 +597,15 @@ end
 """ 
 function intread!(rsf::_RSF, arr)
     if rsf.form == "ascii"
-        arr[:] = readdlm(rsf.stream, Int32)
+        size = length(arr)
+        left = size    
+        while left > 0
+            line = readline(rsf.stream)
+            row = readdlm(IOBuffer(line[1:end-1]), Int32)
+            nbuf = min(length(row), left)
+            arr[size-left+1:size-left+nbuf] .= row[1:nbuf]
+            left -= nbuf
+		end
     else
 		bytes = Array{UInt8}(undef, length(arr)*4)
         readbytes!(rsf.stream, bytes)
@@ -728,3 +749,4 @@ function fileclose(rsf::_RSF)
 end
 
 fileclose(out::Output) = fileclose(out.file)
+fileclose(inp::Input) = fileclose(inp.file)
