@@ -494,11 +494,12 @@ function fileflush!(rsf::_RSF, src::Union{_RSF, Symbol})
 end
 
 """
-    fflush!(rsf::_RSF)
+    flush!(rsf::_RSF)
 
     Flush the contents of the RSF file represented by the `_RSF` struct to disk. 
 """
-fflush!(rsf::_RSF) = flush(rsf.stream)
+flush!(rsf::_RSF) = flush(rsf.stream)
+flush!(out::Output) = flush!(out.file)
 
 """
     intwrite(rsf::_RSF, arr)

@@ -179,11 +179,32 @@ setform!(out, "ascii")
 putint!(out,"n1",5)
 putint!(out,"n2",2)
 datawrite(out, Int32[0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
+flush!(out)
 fileclose(out)
 
 inp = Input("mytest_out.rsf")
 @test gettype(inp) == Int32
 @test getform(inp) == "ascii"
+@test getint(inp, "n1") == 5
+@test getint(inp, "n2") == 2
+@test getshape(inp) == (5,2)
+arr = Array{Int32}(undef, 10)
+dataread!(inp, arr)
+@test arr == [0, 0, 0, 0, 1, 0, 0, 0, 0, 0]
+fileclose(inp)
+
+out = Output("mytest_out.rsf")
+settype!(out, Int32)
+setform!(out, "native")
+putint!(out,"n1",5)
+putint!(out,"n2",2)
+datawrite(out, Int32[0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
+flush!(out)
+fileclose(out)
+
+inp = Input("mytest_out.rsf")
+@test gettype(inp) == Int32
+@test getform(inp) == "native"
 @test getint(inp, "n1") == 5
 @test getint(inp, "n2") == 2
 @test getshape(inp) == (5,2)

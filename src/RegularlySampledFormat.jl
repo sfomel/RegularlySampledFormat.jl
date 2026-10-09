@@ -7,12 +7,7 @@ include("RSF.jl")
 include("File.jl")
 
 # Exports
-export SimTab,
-       enter!,
-       add!,
-       string!,
-       input!,
-       getint,
+export getint,
        getstring,
        getints,
        getfloat,
@@ -43,6 +38,7 @@ export SimTab,
        fileclose,
        getfilename,
        datawrite,
-       dataread!
+       dataread!,
+       flush!
 
 end
