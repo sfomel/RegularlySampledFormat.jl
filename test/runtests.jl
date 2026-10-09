@@ -199,4 +199,12 @@ data = ones(Float32, 5, 4)
 file = RSF(data)
 @test getshape(file) == (5, 4)
 
+data = ones(Int32, 5, 4)
+file = RSF(data)
+@test file.data == data
+
+data = ones(UInt8, 5, 4)
+file = RSF(data, "mybyte.rsf")
+@test file.data == data
+
 end

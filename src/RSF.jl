@@ -292,7 +292,7 @@ putint!(rsf::Output, key::String, par::Integer) = putint!(rsf.file, key, par)
     Write an array of integer parameters to the RSF file represented by the `_RSF` struct.
     The parameters are associated with the specified `key`. The array has length `n`.
 """
-function putints!(rsf::_RSF,key::String,par::Array{T},n::Int) where T <: Integer
+function putints!(rsf::_RSF,key::String,par::Array{<:Integer},n::Int) 
     if :none == rsf.dataname
         throw("putints to a closed file")
 	end
@@ -304,7 +304,7 @@ function putints!(rsf::_RSF,key::String,par::Array{T},n::Int) where T <: Integer
     enter!(rsf.pars, key, val)
 end
 
-putints!(rsf::Output,key::String,par::Array{T},n::Int) where T <: Integer = putints!(rsf.file,key,par,n)
+putints!(rsf::Output,key::String,par::Array{<:Integer},n::Int) = putints!(rsf.file,key,par,n)
 
 """
     putfloat!(rsf::_RSF, key::String, val::Float32) -> Nothing
@@ -328,7 +328,7 @@ putfloat!(rsf::Output,key::String,val::AbstractFloat) = putfloat!(rsf.file,key,v
     Write an array of float parameters to the RSF file represented by the `_RSF` struct. 
     The parameters are associated with the specified `key`.
 """
-function putfloats!(rsf::_RSF,key::String,par::Array{T},n::Int) where T <: AbstractFloat
+function putfloats!(rsf::_RSF,key::String,par::Array{<: AbstractFloat},n::Int)
     if :none == rsf.dataname
         throw("putfloats to a closed file")
 	end
@@ -340,7 +340,7 @@ function putfloats!(rsf::_RSF,key::String,par::Array{T},n::Int) where T <: Abstr
     enter!(rsf.pars, key, val)
 end
 
-putfloats!(rsf::Output,key::String,par::Array{T},n::Int) where T <: AbstractFloat = putfloats!(rsf.file,key,par,n)
+putfloats!(rsf::Output,key::String,par::Array{<: AbstractFloat},n::Int) = putfloats!(rsf.file,key,par,n)
 
 """
     getform(rsf::_RSF) -> String
@@ -501,18 +501,6 @@ end
 fflush!(rsf::_RSF) = flush(rsf.stream)
 
 """
-    ucharwrite(rsf::_RSF, arr)
-
-    Write an array of unsigned characters (UInt8) to the RSF file represented by the `_RSF` struct.
-"""
-function ucharwrite(rsf::_RSF, arr)
-    if :none != rsf.dataname
-        fileflush!(rsf, _infiles[1])
-	end
-	Base.write(rsf.stream, reinterpret(UInt8, arr))
-end
-
-"""
     intwrite(rsf::_RSF, arr)
 
     Write an array of integers (Int32) to the RSF file represented by the `_RSF` struct.
@@ -549,6 +537,19 @@ function intwrite(rsf::_RSF,arr)
     else
 		Base.write(rsf.stream, reinterpret(UInt8, arr))
 	end
+end
+
+"""
+    ucharwrite(rsf::_RSF, arr)
+
+    Write an array of unsigned chars (UInt8) to the RSF file represented by the `_RSF` struct.
+"""
+function ucharwrite(rsf::_RSF,arr)
+	if :none != rsf.dataname
+        fileflush!(rsf, _infiles[1])
+	end
+
+    Base.write(rsf.stream, arr)
 end
 
 """
@@ -655,6 +656,8 @@ function datawrite(out::Output, data::Array)
         floatwrite(out.file, data)
 	elseif type == Int32
 		intwrite(out.file, data)
+    elseif type == UInt8
+        ucharwrite(out.file, data)
 	else
         throw("Unsupported file type $(string(type))")
 	end
