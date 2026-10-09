@@ -143,12 +143,12 @@ putint!(out, "n3", 1)
 @test getint(out, "n1") == 10
 @test getint(out, "m1") == :none
 @test getint(out, "m1", 1) == 1
-putfloat!(out, "d1", 0.004f0)
-@test getfloat(out, "d1") ≈ 0.004f0
+putfloat!(out, "d1", 0.004)
+@test getfloat(out, "d1") ≈ 0.004
 @test getfloat(out, "d2") == :none
 @test getfloat(out, "d2", 0.0f0) == 0.0f0
-putints!(out, "ns", Int32[1, 2, 3], 3)
-putfloats!(out, "fs", Float32[1.0, 2.0, 3.0], 3)
+putints!(out, "ns", [1, 2, 3], 3)
+putfloats!(out, "fs", [1.0, 2.0, 3.0], 3)
 datawrite(out, Int32[0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
 @test getstring(out,"in") == "./mytest_out.rsf@"
 setformat!(out, "ascii_byte")
@@ -157,6 +157,20 @@ setformat!(out, "ascii_byte")
 @test getshape(out) == (10,)
 @test bytes(out) == 0
 @test tell(out) == 40
+fileclose(out)
+
+@test_throws "putint to a closed file" putint!(out,"try",1)
+@test_throws "putints to a closed file" putints!(out,"try",[1,2],2)
+@test_throws "putfloat to a closed file" putfloat!(out,"try",1.0)
+@test_throws "putfloats to a closed file" putfloats!(out,"try",[1.0,2.0],2)
+@test_throws "putstring to a closed file" putstring!(out,"try","this")
+
+out = Output("myfloat_out.rsf")
+settype!(out, Float32)
+setform!(out, "native")
+putint!(out,"n1",5)
+putint!(out,"n2",2)
+datawrite(out, Float32[0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
 fileclose(out)
 
 out = Output("mytest_out.rsf")

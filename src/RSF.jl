@@ -276,7 +276,7 @@ settype!(rsf::Output, T::DataType) = settype!(rsf.file, T)
     Write an integer parameter to the RSF file represented by the `_RSF` struct. 
     The parameter is associated with the specified `key`.
 """
-function putint!(rsf::_RSF, key::String, par::Int)
+function putint!(rsf::_RSF, key::String, par::Integer)
     if :none == rsf.dataname
         throw("putint to a closed file")
 	end
@@ -284,7 +284,7 @@ function putint!(rsf::_RSF, key::String, par::Int)
     enter!(rsf.pars, key, val)
 end
 
-putint!(rsf::Output, key::String, par::Int) = putint!(rsf.file, key, par)
+putint!(rsf::Output, key::String, par::Integer) = putint!(rsf.file, key, par)
 
 """
     putints!(rsf::_RSF, key::String, par::Array{Int}, n::Int)   
@@ -292,8 +292,8 @@ putint!(rsf::Output, key::String, par::Int) = putint!(rsf.file, key, par)
     Write an array of integer parameters to the RSF file represented by the `_RSF` struct.
     The parameters are associated with the specified `key`. The array has length `n`.
 """
-function putints!(rsf::_RSF,key::String,par::Array{Int32},n::Int)
-    if :one == rsf.dataname
+function putints!(rsf::_RSF,key::String,par::Array{T},n::Int) where T <: Integer
+    if :none == rsf.dataname
         throw("putints to a closed file")
 	end
     val = ""
@@ -304,7 +304,7 @@ function putints!(rsf::_RSF,key::String,par::Array{Int32},n::Int)
     enter!(rsf.pars, key, val)
 end
 
-putints!(rsf::Output,key::String,par::Array{Int32},n::Int) = putints!(rsf.file,key,par,n)
+putints!(rsf::Output,key::String,par::Array{T},n::Int) where T <: Integer = putints!(rsf.file,key,par,n)
 
 """
     putfloat!(rsf::_RSF, key::String, val::Float32) -> Nothing
@@ -312,15 +312,15 @@ putints!(rsf::Output,key::String,par::Array{Int32},n::Int) = putints!(rsf.file,k
     Write a float parameter to the RSF file represented by the `_RSF` struct. 
     The parameter is associated with the specified `key`.
 """
-function putfloat!(rsf::_RSF, key::String, par::Float32)
+function putfloat!(rsf::_RSF, key::String, par::AbstractFloat)
     if :none == rsf.dataname
-        throw("putint to a closed file")
+        throw("putfloat to a closed file")
 	end
     val = "$par"
     enter!(rsf.pars, key, val)
 end
 
-putfloat!(rsf::Output,key::String,val::Float32) = putfloat!(rsf.file,key,val)
+putfloat!(rsf::Output,key::String,val::AbstractFloat) = putfloat!(rsf.file,key,val)
 
 """
     putfloats!(rsf::_RSF,key::String,par::Array{Float32},n::Int)
@@ -328,9 +328,9 @@ putfloat!(rsf::Output,key::String,val::Float32) = putfloat!(rsf.file,key,val)
     Write an array of float parameters to the RSF file represented by the `_RSF` struct. 
     The parameters are associated with the specified `key`.
 """
-function putfloats!(rsf::_RSF,key::String,par::Array{Float32},n::Int)
-    if :one == rsf.dataname
-        throw("putints to a closed file")
+function putfloats!(rsf::_RSF,key::String,par::Array{T},n::Int) where T <: AbstractFloat
+    if :none == rsf.dataname
+        throw("putfloats to a closed file")
 	end
     val = ""
     for i in 1:n-1
@@ -340,7 +340,7 @@ function putfloats!(rsf::_RSF,key::String,par::Array{Float32},n::Int)
     enter!(rsf.pars, key, val)
 end
 
-putfloats!(rsf::Output,key::String,par::Array{Float32},n::Int) = putfloats!(rsf.file,key,par,n)
+putfloats!(rsf::Output,key::String,par::Array{T},n::Int) where T <: AbstractFloat = putfloats!(rsf.file,key,par,n)
 
 """
     getform(rsf::_RSF) -> String
