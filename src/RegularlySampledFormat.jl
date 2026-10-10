@@ -39,6 +39,7 @@ export getint,
        getfilename,
        datawrite,
        dataread!,
-       flush!
+       flush!,
+       setaformat!
 
 end

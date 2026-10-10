@@ -375,6 +375,19 @@ function setform!(rsf::_RSF, form::String)
 end
 
 """
+    setaformat!(rsf::_RSF, format::String, line::Int=8, strip::Int=0)
+
+    set a format for ASCII output
+"""
+function setaformat!(rsf::_RSF, format::String, line::Int, strip::Int)
+    rsf.aformat = Printf.Format(format)
+    rsf.eformat = Printf.Format(format[1:end-strip])
+    rsf.aline = line
+end
+
+setaformat!(out::Output, format::String, line::Int=8, strip::Int=0) = setaformat!(out.file, format, line, strip)
+
+"""
     setformat!(rsf::_RSF, dataformat::String)
 
     Set the data type and format of the RSF file represented by the `_RSF` struct based on the provided `dataformat` string. 
