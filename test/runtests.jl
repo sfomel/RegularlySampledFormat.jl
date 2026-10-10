@@ -249,12 +249,25 @@ file = RSF(data, "mybyte.rsf")
 @test file.data == data
 
 old_stdin = Base.stdin
+old_stdout = Base.stdout
+
 Base.stdin = IOBuffer(contents)
 inp = Input("in")
 @test gettype(inp) == Float32
 @test bytes(inp) == 40
 @test tell(inp) == 0
+
+try
+	Base.stdout = IOBuffer()
+	out = Output("out")
+	@test gettype(out) == Float32
+	fileclose(out)
+finally
+	Base.stdout = old_stdout
+end
+
 fileclose(inp)
 Base.stdin = old_stdin
+
 
 end

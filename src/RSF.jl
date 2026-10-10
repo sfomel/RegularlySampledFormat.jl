@@ -67,16 +67,18 @@ function Temp()
 end
 
 """
-    getfilename(stream::IOStream) -> Union{String, Symbol}
+    getfilename(stream::IO) -> Union{String, Symbol}
 
     Find the name of the file associated with the given IO stream. 
     If the stream is not associated with a file, returns `:none`.
 """
-function getfilename(stream::IOStream)
+function getfilename(stream::IO)
 	found_stdout = false
-
-	inode = stat(stream).inode
     f = "/dev/null"
+    if typeof(stream) == IOBuffer
+        return f
+    end
+	inode = stat(stream).inode
     if inode == stat(f).inode
         found_stdout = true
     else        
@@ -100,10 +102,10 @@ end
 
 begin
 	mutable struct _RSF
-		stream::Union{IOStream, Symbol}
+		stream::Union{IO, Symbol}
 		pars::SimTab
 		headname::Union{String, Symbol}
-		head::Union{IOStream, Symbol}
+		head::Union{IO, Symbol}
 		dataname::Union{String,Symbol}
 		pipe::Bool
 		type::DataType
@@ -185,7 +187,10 @@ begin
                 pipe = true
 			end
 			if stream == stdout
-				filename = getstring("--out") || getstring("out")
+				filename = getstring("--out") 
+                if filename == :none
+                    filename = getstring("out")
+                end
             else
                 filename = :none
 			end
