@@ -73,7 +73,7 @@ io = open("/tmp/junk", "w")
 close(io)
 
 io = open("mytest.rsf", "w")
-Base.write(io, """
+contents = """
 4.3-git	sfspike	Users/sfomel/RSFSRC:	sfomel@GEO-A78312	Fri Oct  2 15:37:15 2026
 
 	o1=0
@@ -91,7 +91,8 @@ Base.write(io, """
 	data_format="xdr_float"
 	esize=4
 	in="mytest.rsf@"
-""")
+"""
+Base.write(io,contents)
 close(io)
 
 io = open("mytest.rsf@", "w")
@@ -246,5 +247,14 @@ file = RSF(data)
 data = ones(UInt8, 5, 4)
 file = RSF(data, "mybyte.rsf")
 @test file.data == data
+
+old_stdin = Base.stdin
+Base.stdin = IOBuffer(contents)
+inp = Input("in")
+@test gettype(inp) == Float32
+@test bytes(inp) == 40
+@test tell(inp) == 0
+fileclose(inp)
+Base.stdin = old_stdin
 
 end

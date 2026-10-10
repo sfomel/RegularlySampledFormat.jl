@@ -91,7 +91,7 @@ end
 
 	Input key-value pairs into the symbolic table `t` from a file stream `filep`.
 """
-function input!(t::SimTab, filep::IOStream, out=:none)
+function input!(t::SimTab, filep::IO, out=:none)
     # Special code b'\x0c\x0c\x04', if encountered, signifies
     # the end of the header and the start of the data.
     # With each new line, we will try to read the first three
