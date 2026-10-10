@@ -1,6 +1,6 @@
 name = "RegularlySampledFormat"
 uuid = "1c5ec455-f405-45c6-8f0c-36dd8a824b67"
-version = "1.0.0-DEV"
+version = "1.0.0"
 authors = ["sfomel <sergey.fomel@gmail.com> and contributors"]
 
 [deps]
