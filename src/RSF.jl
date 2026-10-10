@@ -622,7 +622,15 @@ end
 """
 function floatread!(rsf::_RSF, arr)
     if rsf.form == "ascii"
-        arr[:] = readdlm(rsf.stream, Float32)
+        size = length(arr)
+        left = size    
+        while left > 0
+            line = readline(rsf.stream)
+            row = readdlm(IOBuffer(line[1:end-1]), Float32)
+            nbuf = min(length(row), left)
+            arr[size-left+1:size-left+nbuf] .= row[1:nbuf]
+            left -= nbuf
+		end
     else
 		bytes = Array{UInt8}(undef, length(arr)*4)
         readbytes!(rsf.stream, bytes)

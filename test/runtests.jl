@@ -173,6 +173,25 @@ putint!(out,"n2",2)
 datawrite(out, Float32[0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
 fileclose(out)
 
+out = Output("myfloat_out.rsf")
+settype!(out, Float32)
+setform!(out, "ascii")
+putint!(out,"n1",5)
+putint!(out,"n2",2)
+datawrite(out, Float32[0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
+fileclose(out)
+
+inp = Input("myfloat_out.rsf")
+@test gettype(inp) == Float32
+@test getform(inp) == "ascii"
+@test getint(inp, "n1") == 5
+@test getint(inp, "n2") == 2
+@test getshape(inp) == (5,2)
+arr = Array{Float32}(undef, 10)
+dataread!(inp, arr)
+@test arr == Float32[0, 0, 0, 0, 1, 0, 0, 0, 0, 0]
+fileclose(inp)
+
 out = Output("mytest_out.rsf")
 settype!(out, Int32)
 setform!(out, "ascii")
