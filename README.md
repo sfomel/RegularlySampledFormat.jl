@@ -7,13 +7,17 @@
 
 The [RegularlySampledFormat](https://github.com/sfomel/RegularlySampledFormat.jl) package provides an interface for working with RSF files.
 
-The **RSF** file format is used in the [Madagascar](https://ahay.org/) open-source package for geophysical data analysis.
+<p align="center">
+  [<img src=https://ahay.org/wikilocal/style/Madagascar2.png>](https://ahay.org/)
+</p>
+
+The **RSF** file format is used in the [Madagascar](https://en.wikipedia.org/wiki/Madagascar_(software)) open-source package for geophysical data analysis.
 
 ## Installation
 
 RegularlySampledFormat.jl requires Julia 1.10.10 or later. From the Julia REPL, press `]` to enter package mode and run:
 
-```
+```Julia
 pkg> add https://github.com/sfomel/RegularlySampledFormat.jl
 ```
 
@@ -60,6 +64,6 @@ fileclose(out)
 
 ## Documentation
 
-- [**Stable**](https://sfomel.github.io/RegularlySampledFormat.jl/stable/)
+[Function Documentation](https://sfomel.github.io/RegularlySampledFormat.jl/stable/)
 
 
