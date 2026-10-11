@@ -7,9 +7,7 @@
 
 The [RegularlySampledFormat](https://github.com/sfomel/RegularlySampledFormat.jl) package provides an interface for working with RSF files.
 
-<p align="center">
-  <img src=https://ahay.org/wikilocal/style/Madagascar2.png>
-</p>
+<img src=https://ahay.org/wikilocal/style/Madagascar2.png>
 
 The **RSF** file format is used in the [Madagascar](https://en.wikipedia.org/wiki/Madagascar_(software)) open-source package for geophysical data analysis.
 
