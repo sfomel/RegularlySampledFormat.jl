@@ -126,11 +126,11 @@ dataread!(inp, arr)
 
 out = Output("mytest_out.rsf")
 @test gettype(out) == Float32
-@test getform(out) == "native"	
+@test getform(out) == "xdr"	
 settype!(out, Int32)
 @test gettype(out) == Int32
-setform!(out, "xdr")
-@test getform(out) == "xdr"
+setform!(out, "native")
+@test getform(out) == "native"
 putstring!(out, "newkey", "newvalue")
 @test getstring(out, "newkey") == "newvalue"
 @test getstring(out, "otherkey", "default") == "default"

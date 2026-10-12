@@ -94,7 +94,7 @@ begin
 			end
 			new = _RSF(stream, pars, headname, head, dataname, false, Float32, "native", :none, :none, 8)
 			# keep track of input files
-            if filename == :none
+            if _infiles[1] == :none
 				_infiles[1] = new
 			else
 				push!(_infiles, new)
