@@ -57,5 +57,5 @@ fileclose(out)
 
 ```@autodocs
 Modules = [RegularlySampledFormat]
-Private = false
+Pages = ["File.jl", "Par.jl"]
 ```
