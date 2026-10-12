@@ -115,6 +115,7 @@ setform!(inp, "native")
 
 @test getint(inp, "n1", 10) == 10
 @test getfloat(inp, "d1") ≈ 0.004
+@test getstring(inp, "label1") == "Time"
 
 @test tell(inp) == 0
 @test bytes(inp) == 10 * sizeof(Float32)
@@ -188,6 +189,25 @@ inp = Input("myfloat_out.rsf")
 arr = Array{Float32}(undef, 10)
 dataread!(inp, arr)
 @test arr == Float32[0, 0, 0, 0, 1, 0, 0, 0, 0, 0]
+fileclose(inp)
+
+out = Output("mybyte_out.rsf")
+settype!(out, UInt8)
+setform!(out, "native")
+putint!(out,"n1",5)
+putint!(out,"n2",2)
+datawrite(out, UInt8[0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
+fileclose(out)
+
+inp = Input("mybyte_out.rsf")
+@test gettype(inp) == UInt8
+@test getform(inp) == "native"
+@test getint(inp, "n1") == 5
+@test getint(inp, "n2") == 2
+@test getshape(inp) == (5,2)
+arr = Array{UInt8}(undef, 10)
+dataread!(inp, arr)
+@test arr == UInt8[0, 0, 0, 0, 1, 0, 0, 0, 0, 0]
 fileclose(inp)
 
 out = Output("mytest_out.rsf")
