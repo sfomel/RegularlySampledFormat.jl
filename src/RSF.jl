@@ -85,7 +85,7 @@ begin
 			# get dataname
             filename = getstring(pars,"in")
             if filename == :none
-				throw("No in= in file '$tag' ")
+				throw("No in= in file '$tag'")
 			end
 			dataname = filename
 			# keep stream in the special case of in=stdin

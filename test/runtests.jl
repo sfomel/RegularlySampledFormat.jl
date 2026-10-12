@@ -246,15 +246,33 @@ data = ones(UInt8, 5, 4)
 file = RSF(data, "mybyte.rsf")
 @test file.data == data
 
+io = open("fake.rsf", "w")
+fcontents = """
+4.3-git	sfspike	Users/sfomel/RSFSRC:	sfomel@GEO-A78312	Fri Oct  2 15:37:15 2026
+
+	o1=0
+	label1="Time"
+	data_format="native_float"
+	esize=4
+"""
+Base.write(io,fcontents)
+close(io)
+
+@test_throws "No in= in file 'fake.rsf'" file = RSF("fake.rsf")
+@test_throws "No in= in file 'fake.rsf'" file = Input("fake.rsf")
+
 old_stdin = Base.stdin
+try
+    Base.stdin = IOBuffer(contents)
+    inp = Input("in")
+    @test gettype(inp) == Float32
+    @test bytes(inp) == 40
+    @test tell(inp) == 0
+finally
+    Base.stdin = old_stdin
+end
+
 old_stdout = Base.stdout
-
-Base.stdin = IOBuffer(contents)
-inp = Input("in")
-@test gettype(inp) == Float32
-@test bytes(inp) == 40
-@test tell(inp) == 0
-
 try
 	Base.stdout = IOBuffer()
 	out = Output("out")
