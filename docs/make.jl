@@ -5,8 +5,9 @@ DocMeta.setdocmeta!(RegularlySampledFormat, :DocTestSetup, :(using RegularlySamp
 
 makedocs(;
     modules=[RegularlySampledFormat],
-    authors="sfomel <sergey.fomel@gmail.com> and contributors",
+    authors="Sergey Fomel <sergey.fomel@gmail.com> and contributors",
     sitename="RegularlySampledFormat.jl",
+    warnonly=[:missing_docs],
     format=Documenter.HTML(;
         canonical="https://sfomel.github.io/RegularlySampledFormat.jl",
         edit_link="main",
