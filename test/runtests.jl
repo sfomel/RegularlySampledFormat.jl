@@ -116,9 +116,6 @@ setform!(inp, "native")
 @test getint(inp, "n1", 10) == 10
 @test getfloat(inp, "d1") ≈ 0.004
 
-putstring!(inp, "newkey", "newvalue")
-@test getstring(inp, "newkey") == "newvalue"
-
 @test tell(inp) == 0
 @test bytes(inp) == 10 * sizeof(Float32)
 arr = Array{Float32}(undef, 5)

@@ -4,6 +4,7 @@ module RegularlySampledFormat
 include("SimTab.jl")
 include("Par.jl")
 include("RSF.jl")
+include("IO.jl")
 include("File.jl")
 
 # Exports

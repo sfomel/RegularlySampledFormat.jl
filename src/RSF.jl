@@ -6,67 +6,6 @@ using Dates
 using DelimitedFiles
 
 """
-    Datapath() -> String
-
-    Return the path to the data directory. The path is determined by checking the following sources in order of priority:
-    1. The environment variable `DATAPATH`.
-    2. A file named `.datapath` in the current working directory.
-    3. A file named `.datapath` in the user's home directory.
-    4. If none of the above sources provide a path, the function defaults to returning
-    the current working directory (`"./"`).
-"""
-function Datapath()
-	if haskey(ENV, "DATAPATH")
-    	path = ENV["DATAPATH"]
-	else
-		path = nothing
-        pathfile = nothing
-        try
-            pathfile = open(".datapath","r")
-		catch
-            try
-                pathfile = open(joinpath(ENV["HOME"],".datapath"),"r")
-			catch
-                pathfile = nothing
-			end
-		end
-        if pathfile != nothing
-			re = r"(?:$(Base.Libc.gethostname())\s+)?datapath=(\S+)" 
-            for line in readlines(pathfile)
-				check = match(re, line)
-                if check != nothing
-                    path = check.captures[3]
-				end
-			end
-            close(pathfile)
-		end
-    	if path == nothing
-        	path = "./" # the ultimate fallback
-		end
-	end
-    return path
-end
-
-"""
-    Temp() -> (String, IO)
-
-    Create a temporary data path. The temporary data path is determined by checking the following sources in order of priority:
-    1. The environment variable `TMPDATAPATH`.
-    2. The result of `Datapath()` function.
-    
-    Returns a tuple containing the path to the temporary file and an IO object for writing to the file.
-"""
-function Temp()
-	if haskey(ENV, "TMPDATAPATH")
-		tmpdatapath = ENV["TMPDATAPATH"]
-	else
-		tmpdatapath = Datapath()
-	end
-	temp, io = mktemp(tmpdatapath)
-	return temp
-end
-
-"""
     getfilename(stream::IO) -> Union{String, Symbol}
 
     Find the name of the file associated with the given IO stream. 
@@ -227,38 +166,12 @@ begin
 	end
 end
 
-begin
-	mutable struct Input
-		file::_RSF
-	end
-    """
-    Input(tag::String) -> Input
-
-    Create an instance of the `Input` struct for reading from an RSF file specified by `tag`.
-    """
-	Input(tag::String) = Input(_RSF(true,tag))
-end
-
-begin
-	mutable struct Output
-		file::_RSF
-	end
-    """
-    Output(tag::String) -> Output
-
-    Create an instance of the `Output` struct for writing to an RSF file specified by `tag`.    
-    """
-	Output(tag::String) = Output(_RSF(false,tag))
-end
-
 """
     gettype(rsf::_RSF) -> DataType
 
     Return the data type of the RSF file represented by the `_RSF` struct.
 """
 gettype(rsf::_RSF) = rsf.type
-gettype(inp::Input) = gettype(inp.file)
-gettype(out::Output) = gettype(out.file)
 
 """
     settype!(rsf::_RSF, T::DataType)
@@ -268,12 +181,6 @@ gettype(out::Output) = gettype(out.file)
 function settype!(rsf::_RSF, T::DataType)
 	rsf.type = T
 end
-
-setform!(rsf::Input, form::String) = setform!(rsf.file, form)
-setform!(rsf::Output, form::String) = setform!(rsf.file, form)  
-
-settype!(rsf::Input, T::DataType) = settype!(rsf.file, T)  
-settype!(rsf::Output, T::DataType) = settype!(rsf.file, T)  
 
 """
     putint!(rsf::_RSF, key::String, par::Int)
@@ -288,8 +195,6 @@ function putint!(rsf::_RSF, key::String, par::Integer)
     val = "$par"
     enter!(rsf.pars, key, val)
 end
-
-putint!(rsf::Output, key::String, par::Integer) = putint!(rsf.file, key, par)
 
 """
     putints!(rsf::_RSF, key::String, par::Array{Int}, n::Int)   
@@ -309,8 +214,6 @@ function putints!(rsf::_RSF,key::String,par::Array{<:Integer},n::Int)
     enter!(rsf.pars, key, val)
 end
 
-putints!(rsf::Output,key::String,par::Array{<:Integer},n::Int) = putints!(rsf.file,key,par,n)
-
 """
     putfloat!(rsf::_RSF, key::String, val::Float32) -> Nothing
 
@@ -324,8 +227,6 @@ function putfloat!(rsf::_RSF, key::String, par::AbstractFloat)
     val = "$par"
     enter!(rsf.pars, key, val)
 end
-
-putfloat!(rsf::Output,key::String,val::AbstractFloat) = putfloat!(rsf.file,key,val)
 
 """
     putfloats!(rsf::_RSF,key::String,par::Array{Float32},n::Int)
@@ -345,16 +246,12 @@ function putfloats!(rsf::_RSF,key::String,par::Array{<: AbstractFloat},n::Int)
     enter!(rsf.pars, key, val)
 end
 
-putfloats!(rsf::Output,key::String,par::Array{<: AbstractFloat},n::Int) = putfloats!(rsf.file,key,par,n)
-
 """
     getform(rsf::_RSF) -> String
 
     Return the data format of the RSF file represented by the `_RSF` struct.
 """
 getform(rsf::_RSF) = rsf.form
-getform(inp::Input) = getform(inp.file)
-getform(out::Output) = getform(out.file)
 
 """
     setform!(rsf::_RSF, form::String)
@@ -384,8 +281,6 @@ function setaformat!(rsf::_RSF, format::String, line::Int, strip::Int)
     rsf.eformat = Printf.Format(format[1:end-strip])
     rsf.aline = line
 end
-
-setaformat!(out::Output, format::String, line::Int=8, strip::Int=0) = setaformat!(out.file, format, line, strip)
 
 """
     setformat!(rsf::_RSF, dataformat::String)
@@ -427,8 +322,6 @@ function setformat!(rsf::_RSF, dataformat::String)
 	end
 end
 
-setformat!(rsf::Output, dataformat::String) = setformat!(rsf.file, dataformat)
-
 """
     getstring(rsf::_RSF, key::String, default=:none) -> String
 
@@ -444,9 +337,6 @@ function getstring(rsf::_RSF, key::String, default=:none)
 	end
 end
 
-getstring(rsf::Input, key::String, default=:none) = getstring(rsf.file, key, default)
-getstring(rsf::Output, key::String, default=:none) = getstring(rsf.file, key, default)
-
 """
     putstring!(rsf::_RSF, key::String, par::String)
 
@@ -460,9 +350,6 @@ function putstring!(rsf::_RSF, key::String, par::String)
     val = "\"$(par)\""
     enter!(rsf.pars, key, val)
 end
-
-putstring!(rsf::Input, key::String, par::String) = putstring!(rsf.file, key, par)
-putstring!(rsf::Output, key::String, par::String) = putstring!(rsf.file, key, par)
 
 """
     fileflush!(rsf::_RSF, src::_RSF)
@@ -517,7 +404,6 @@ end
     Flush the contents of the RSF file represented by the `_RSF` struct to disk. 
 """
 flush!(rsf::_RSF) = flush(rsf.stream)
-flush!(out::Output) = flush!(out.file)
 
 """
     intwrite(rsf::_RSF, arr)
@@ -657,47 +543,11 @@ function floatread!(rsf::_RSF, arr)
 end
 
 """
-    dataread!(inp::Input, data::Array)
-
-    Read data from the RSF file represented by the `Input` struct into the provided `data` array.
-"""
-function dataread!(inp::Input, data::Array)
-	type = inp.file.type
-	if type == Float32
-        floatread!(inp.file, data)
-	elseif type == Int32
-		intread!(inp.file, data)
-	else
-        throw("Unsupported file type $(string(type))")
-	end
-end
-
-"""
-    datawrite(out::Output, data::Array)
-
-    Write data from the provided `data` array to the RSF file represented by the `Output` struct.
-"""
-function datawrite(out::Output, data::Array)
-	type = out.file.type
-	if type == Float32
-        floatwrite(out.file, data)
-	elseif type == Int32
-		intwrite(out.file, data)
-    elseif type == UInt8
-        ucharwrite(out.file, data)
-	else
-        throw("Unsupported file type $(string(type))")
-	end
-end
-
-"""
     tell(rsf::_RSF) -> Int
 
     Return the current position in the RSF file represented by the `_RSF` struct.
 """
 tell(rsf::_RSF) = position(rsf.stream)
-tell(inp::Input) = tell(inp.file)
-tell(out::Output) = tell(out.file)
 
 """
     bytes(rsf::_RSF) -> Int
@@ -717,9 +567,6 @@ function bytes(rsf::_RSF)
     return st.size
 end
 
-bytes(inp::Input) = bytes(inp.file)
-bytes(out::Output) = bytes(out.file)
-
 function getpar(file::_RSF, key::String, T::DataType, default=:none)
 	get, par = getpar(file.pars, key, T)
 	if get 
@@ -728,12 +575,6 @@ function getpar(file::_RSF, key::String, T::DataType, default=:none)
         return default
 	end
 end
-
-getint(inp::Input, key::String, default=:none) = getpar(inp.file, key, Int32, default)
-getfloat(inp::Input, key::String, default=:none) = getpar(inp.file, key, Float32, default)
-
-getint(out::Output, key::String, default=:none) = getpar(out.file, key, Int32, default)
-getfloat(out::Output, key::String, default=:none) = getpar(out.file, key, Float32, default)
 
 """
     getshape(rsf::_RSF) -> Array{Int}
@@ -763,9 +604,12 @@ function getshape(rsf::_RSF)
     return Tuple(s)
 end
 
-getshape(inp::Input) = getshape(inp.file)
-getshape(out::Output) = getshape(out.file)
+"""
+    fileclose(rsf::_RSF)
 
+    Close the RSF file represented by the `_RSF` struct. 
+    This includes flushing and closing the stream, and removing the header file if it exists.
+"""
 function fileclose(rsf::_RSF)
     if rsf.stream != :none && rsf.stream != stdin && rsf.stream != stdout
         flush(rsf.stream)
@@ -777,6 +621,3 @@ function fileclose(rsf::_RSF)
         rsf.headname = :none
     end
 end
-
-fileclose(out::Output) = fileclose(out.file)
-fileclose(inp::Input) = fileclose(inp.file)

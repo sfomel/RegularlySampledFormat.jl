@@ -63,4 +63,7 @@ fileclose(out)
 
 [API Reference](https://sfomel.github.io/RegularlySampledFormat.jl/stable/)
 
+## API Reference
 
+- [**Stable**](https://sfomel.github.io/RegularlySampledFormat.jl/stable/): docs for the latest release
+- [**Dev**](https://sfomel.github.io/RegularlySampledFormat.jl/dev/): docs for the main branch

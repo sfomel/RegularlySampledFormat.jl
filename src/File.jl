@@ -4,6 +4,12 @@ begin
 	mutable struct RSF
         file::Input
         data::Array
+        """
+            RSF(tag::String)
+            RSF(data::Array, name::String="")
+
+            Constructors for the RSF type.
+        """
         function RSF(tag::String)
             file = Input(tag)
             T = gettype(file)
