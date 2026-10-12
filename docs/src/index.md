@@ -6,8 +6,6 @@ CurrentModule = RegularlySampledFormat
 
 The [RegularlySampledFormat](https://github.com/sfomel/RegularlySampledFormat.jl) package provides an interface for working with RSF files.
 
-<img src=https://ahay.org/wikilocal/style/Madagascar2.png>
-
 The **RSF** file format is used in the [Madagascar](https://ahay.org/) open-source package for geophysical data analysis.
 
 The format is documented in the [Madagascar documentation](https://ahay.org/wiki/Guide_to_RSF_file_format).
@@ -51,6 +49,8 @@ data = ones(Float32, 10)
 datawrite(out, data)
 fileclose(out)
 ```
+
+## Functions
 
 ```@index
 ```
