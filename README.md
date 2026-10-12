@@ -19,7 +19,6 @@ RegularlySampledFormat.jl requires Julia 1.10.10 or later. From the Julia REPL, 
 pkg> add https://github.com/sfomel/RegularlySampledFormat.jl
 ```
 
-
 ## Quick examples
 
 ### Working with an existing RSF file
@@ -40,7 +39,7 @@ file = RSF(data, "file.rsf")
 
 ### Open an RSF file for reading
 
-```
+```julia
 inp = Input("file.rsf")
 n1 = getint(inp,"n1")
 T = gettype(inp)
@@ -51,7 +50,7 @@ fileclose(inp)
 
 ### Open an RSF file for writing
 
-```
+```julia
 out = Output("file.rsf")
 putint!(out, "n1", 10)
 setformat!(out,"native_int")
@@ -62,6 +61,6 @@ fileclose(out)
 
 ## Documentation
 
-[Function Documentation](https://sfomel.github.io/RegularlySampledFormat.jl/stable/)
+[API Reference](https://sfomel.github.io/RegularlySampledFormat.jl/stable/)
 
 
