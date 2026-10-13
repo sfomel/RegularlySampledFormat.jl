@@ -497,6 +497,13 @@ function floatwrite(rsf::_RSF,arr)
 end
 
 """
+    ucharread!(rsf::_RSF, arr)  
+
+    Read an array of bytes from the RSF file represented by the `_RSF` struct into the provided `arr`.
+""" 
+ucharread!(rsf::_RSF, arr) = readbytes!(rsf.stream, arr)
+
+"""
     intread!(rsf::_RSF, arr)  
 
     Read an array of integers (Int32) from the RSF file represented by the `_RSF` struct into the provided `arr`.
