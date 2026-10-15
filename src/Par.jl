@@ -4,7 +4,7 @@ begin
 		pars::SimTab
 		prog::String
 	end
-	function Par(progfile, args::Vector{String})
+	function Par(progfile::String, args::Vector{String})
 		prog = progfile
 		pars = SimTab()
 		for arg in args
@@ -19,8 +19,9 @@ begin
 		end
 		return Par(pars, prog)
 	end
-	Par() = Par(PROGRAM_FILE, ARGS)
-	par = Par("julia",["-"])
+	if !isdefined(Main, :par)
+		par = Par(PROGRAM_FILE, ARGS)
+	end
 end
 
 """

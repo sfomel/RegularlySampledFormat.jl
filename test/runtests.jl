@@ -11,7 +11,11 @@ Base.write(pf, "bs=y,n,y\n")
 Base.write(pf, "s1=string\n")
 close(pf)
 
+@test RegularlySampledFormat.par.prog == "-"
+
 RegularlySampledFormat.par = Par("julia",["-","i1=1","r1=2.0","b1=y","ns=1,2,3","par=parfile.txt"])
+
+@test RegularlySampledFormat.par.prog == "julia"
 
 @test getint("i1") == 2
 @test getfloat("r1") ≈ 2.0
@@ -38,7 +42,9 @@ RegularlySampledFormat.par = Par("julia",["-","i1=1","r1=2.0","b1=y","ns=1,2,3",
 @test getints("ints", 3, [1,2,3]) == [1,2,3]
 @test getints("ints", 2, [1,2,3]) == [1,2]
 @test getfloats("ints", 6, [1.0,2.0,3.0]) ≈ [1.0,2.0,3.0,3.0,3.0,3.0]
+@test getbools("ints", 3, [true,false,true]) == [true,false,true]
 @test getbools("ints", 6, [true,false,true]) == [true,false,true,true,true,true]
+@test getbools("ints", 2, [true,false,true]) == [true,false]
 @test getbools("bs",3) == [true,false,true]
 @test getbools("bs",2) == [true,false]
 @test getbools("bs",5) == [true,false,true,true,true]
