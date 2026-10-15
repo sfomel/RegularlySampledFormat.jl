@@ -78,7 +78,7 @@ begin
 				stream = open(filename,"r+")
 			end
 			headname = Temp()
-			head = open(headname, "w")
+			head = open(headname, "w+")
 			# read parameters
 			pars = SimTab()
 			input!(pars, stream, head)

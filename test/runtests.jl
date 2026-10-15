@@ -13,13 +13,14 @@ close(pf)
 
 @test RegularlySampledFormat.par.prog == "-"
 
-RegularlySampledFormat.par = Par("julia",["-","i1=1","r1=2.0","b1=y","ns=1,2,3","par=parfile.txt"])
+RegularlySampledFormat.par = Par("julia",["-","i1=1","r1=2.0","b1=y","b2=n","ns=1,2,3","par=parfile.txt"])
 
 @test RegularlySampledFormat.par.prog == "julia"
 
 @test getint("i1") == 2
 @test getfloat("r1") ≈ 2.0
-@test getbool("b1") == true	
+@test getbool("b1") == true
+@test getbool("b2") == false
 @test getints("ns", 3) == [1,2,3]
 @test getints("ns", 2) == [1,2]
 @test getints("ns", 5) == [1,2,3,3,3]
@@ -284,6 +285,9 @@ file = RSF("mytest.rsf")
 data = ones(Float32, 5, 4)
 file = RSF(data)
 @test getshape(file) == (5, 4)
+
+data = ones(Float64, 5, 4)
+@test_throws "Unsupported data type: Float64" file = RSF(data)
 
 data = ones(Int32, 5, 4)
 file = RSF(data)
