@@ -109,9 +109,6 @@ function input!(t::SimTab, filep::IO, out=:none)
                 break
 	    	end
             line = String(line3) * readline(filep)
-            if length(line) < 1
-                break
-	    	end
             # extract parameters
             string!(t, line)
 			if out != :none
