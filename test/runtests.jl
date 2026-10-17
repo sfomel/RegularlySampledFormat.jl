@@ -336,5 +336,33 @@ end
 fileclose(inp)
 Base.stdin = old_stdin
 
+p = Pipe()
+Base.link_pipe!(p; reader_supports_async=true, writer_supports_async=true)
+
+old_stdout = Base.stdout
+try
+	Base.stdout = p
+	out = Output("out")
+	settype!(out, Int32)
+	putint!(out,"n1", 5)
+	datawrite(out, Int32[0, 0, 0, 0, 1])
+	fileclose(out)
+ 	close(p.in)
+finally
+	Base.stdout = old_stdout
+end
+ 
+old_stdin = Base.stdin
+try
+    Base.stdin = p
+    inp = Input("in")
+    @test gettype(inp) == Int32
+    @test bytes(inp) == -1
+	arr = Array{Int32}(undef, 5)
+	dataread!(inp, arr)
+	@test arr == Int32[0, 0, 0, 0, 1]
+finally
+    Base.stdin = old_stdin
+end
 
 end

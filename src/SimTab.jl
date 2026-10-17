@@ -80,7 +80,7 @@ end
 
 	Output the contents of the symbolic table `t` to a file stream `filep`.
 """
-function output(t::SimTab, filep::IOStream)
+function output(t::SimTab, filep::IO)
     for key in keys(t.table)
         Base.write(filep, "\t$(key)=$(t.table[key])\n")
 	end
