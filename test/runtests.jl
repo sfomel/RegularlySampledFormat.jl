@@ -286,6 +286,13 @@ fileclose(out)
 
 inp = Input("mytest_out.rsf")
 @test gettype(inp) == Int32
+settype!(inp, Float16)
+arr = Array{Int32}(undef, 10)
+@test_throws "Unsupported data type: Float16" dataread!(inp, arr)
+fileclose(inp)
+
+inp = Input("mytest_out.rsf")
+@test gettype(inp) == Int32
 @test getform(inp) == "native"
 @test getint(inp, "n1") == 5
 @test getint(inp, "n2") == 2
