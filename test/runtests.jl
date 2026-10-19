@@ -132,6 +132,34 @@ dataread!(inp, arr)
 dataread!(inp, arr)
 @test arr == Float32[0, 0, 0, 0, 0]
 
+io = open("myascii.rsf", "w")
+contents = """
+4.3-git	sfspike	.julia/dev/RegularlySampledFormat:	sfomel@GEO-A78312	Sun Oct 18 20:58:02 2026
+
+	o1=0
+	label1="Time"
+	esize=4
+	in="stdout"
+	unit1="s"
+	d1=0.004
+	n1=5
+	in="stdin"
+
+0 1 0 0 0 
+"""
+Base.write(io, contents)
+close(io)
+
+inp = Input("myascii.rsf")
+@test gettype(inp) == Float32
+@test getform(inp) == "ascii"
+@test getint(inp, "n1") == 5
+@test getshape(inp) == (5,)
+arr = Array{Float32}(undef, 5)
+dataread!(inp, arr)
+@test arr == Float32[0, 1, 0, 0, 0]
+fileclose(inp)
+
 out = Output("mytest_out.rsf")
 @test gettype(out) == Float32
 @test getform(out) == "xdr"	
@@ -340,8 +368,8 @@ try
     Base.stdin = IOBuffer(contents)
     inp = Input("in")
     @test gettype(inp) == Float32
-    @test bytes(inp) == 40
-    @test tell(inp) == 0
+    @test bytes(inp) == -1
+    @test tell(inp) == 181
 finally
     Base.stdin = old_stdin
 end
