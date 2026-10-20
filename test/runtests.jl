@@ -106,6 +106,13 @@ io = open("mytest.rsf@", "w")
 Base.write(io, Float32[0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
 close(io)
 
+out = Output("mytest_out.rsf")
+@test gettype(out) == Float32
+@test getform(out) == "native"
+setformat!(out, "native_char")
+@test gettype(out) == Int8
+fileclose(out)
+
 inp = Input("mytest.rsf")
 
 @test gettype(inp) == Float32
