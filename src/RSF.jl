@@ -367,9 +367,9 @@ function fileflush!(rsf::_RSF, src::Union{_RSF, Symbol})
 				 Int64 => "long",
 				 Float64 => "double"
 				)
-    if :none == rsf.dataname
-        return
-	end
+    #if :none == rsf.dataname
+    #    return
+	#end
     if :none != src && :none != src.head
         seek(src.head,0)
 		for line in eachline(src.head)
