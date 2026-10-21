@@ -628,3 +628,19 @@ function fileclose(rsf::_RSF)
         rsf.headname = :none
     end
 end
+
+"""
+    Return the product of the sizes of the dimensions following the specified dimension `dim` in the RSF file represented by the `_RSF` struct.
+"""
+function leftsize(rsf::_RSF, dim::Int)
+    s = 1
+    for i in dim+1:9
+        ni = getpar(rsf, "n$i", Int)    
+        if ni == :none
+            break
+        else
+            s *= ni
+        end
+    end
+    return s
+end

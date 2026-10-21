@@ -315,6 +315,9 @@ settype!(out, Int32)
 setform!(out, "native")
 putint!(out,"n1",5)
 putint!(out,"n2",2)
+@test leftsize(out, 0) == 10
+@test leftsize(out, 1) == 2
+@test leftsize(out, 2) == 1
 datawrite(out, Int32[0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
 flush!(out)
 fileclose(out)
@@ -332,6 +335,9 @@ inp = Input("mytest_out.rsf")
 @test getint(inp, "n1") == 5
 @test getint(inp, "n2") == 2
 @test getshape(inp) == (5,2)
+@test leftsize(inp, 0) == 10
+@test leftsize(inp, 1) == 2
+@test leftsize(inp, 2) == 1
 arr = Array{Int32}(undef, 10)
 dataread!(inp, arr)
 @test arr == [0, 0, 0, 0, 1, 0, 0, 0, 0, 0]

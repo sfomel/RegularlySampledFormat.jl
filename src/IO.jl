@@ -316,3 +316,15 @@ setaformat!(out::Output, format::String, line::Int=8, strip::Int=0) = setaformat
 """
 fileclose(out::Output) = fileclose(out.file)
 fileclose(inp::Input) = fileclose(inp.file)
+
+"""
+    leftsize(inp::Input, dim::Int) -> Int
+
+    Return the product of the sizes of the dimensions following the specified dimension `dim` in the RSF file represented by the `Input` struct.
+
+    leftsize(out::Output, dim::Int) -> Int
+
+    Return the product of the sizes of the dimensions following the specified dimension `dim` in the RSF file represented by the `Output` struct.
+"""
+leftsize(inp::Input, dim::Int) = leftsize(inp.file, dim)
+leftsize(out::Output, dim::Int) = leftsize(out.file, dim)
