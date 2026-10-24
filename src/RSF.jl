@@ -381,7 +381,7 @@ function fileflush!(rsf::_RSF, src::Union{_RSF, Symbol})
 	username = Libc.getpwuid(user).username
 	now = Dates.now()
 	time = Dates.format(now, "e, dd u yyyy HH:MM:SS")
-	line = "$(getprog(par))\t$(pwd())\t$(username)\t$(gethostname())\t$(now)\n"
+	line = "$(getprog())\t$(pwd())\t$(username)\t$(gethostname())\t$(now)\n"
 	Base.write(rsf.stream, line)
 
     putstring!(rsf, "data_format", join([rsf.form,types[rsf.type]],"_"))
