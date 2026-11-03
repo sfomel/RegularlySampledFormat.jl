@@ -4,6 +4,11 @@ begin
 		pars::SimTab
 		prog::String
 	end
+	"""
+	Par(progfile::String, args::Vector{String})
+
+	Create a new parameter table from the given program file and arguments.
+	"""
 	function Par(progfile::String, args::Vector{String})
 		prog = progfile
 		pars = SimTab()
@@ -19,9 +24,13 @@ begin
 		end
 		return Par(pars, prog)
 	end
-	if !isdefined(Main, :_par)
-		_par = Par(PROGRAM_FILE, ARGS)
-	end
+	"""
+	Par()
+
+	Create a new parameter table from the default program file and arguments.
+	"""
+	Par() = Par(PROGRAM_FILE, ARGS)
+	_par = Par()
 end
 
 """
@@ -29,7 +38,7 @@ end
 
 	Extract the running program name
 """
-getprog() = _par.prog
+getprog(par::Par) = par.prog
 
 """
 	getpar(p, key, T, default)
@@ -47,29 +56,29 @@ function getpar(p::Par, key::String, T::DataType, default=:none)
 end
 
 """
-	getint(key, default)
+	getint(par, key, default)
 
 	Extract an integer parameter from the parameter table `par` for a given `key`. 
 	If the key is not found, return the `default` value.
 """
-getint(key::String, default=:none) = getpar(_par, key, Int32, default)
+getint(par::Par, key::String, default=:none) = getpar(par, key, Int32, default)
 
 """
-	getfloat(key, default)
+	getfloat(par, key, default)
 
 	Extract a float parameter from the parameter table `par` for a given `key`. 
 	If the key is not found, return the `default` value.
 """
-getfloat(key::String, default=:none) = getpar(_par, key, Float32, default)
+getfloat(par::Par, key::String, default=:none) = getpar(par, key, Float32, default)
 
 """
-	getbool(key, default)
+	getbool(par, key, default)
 
 	Extract a boolean parameter from the parameter table `par` for a given `key`. 
 	If the key is not found, return the `default` value.
 """
-function getbool(key::String, default=:none) 
-	get, val = getbool(_par.pars, key)
+function getbool(par::Par, key::String, default=:none) 
+	get, val = getbool(par.pars, key)
 	if get 
         return val
 	else
@@ -78,13 +87,13 @@ function getbool(key::String, default=:none)
 end
 
 """
-	getstring(key, default)
+	getstring(par, key, default)
 
 	Extract a string parameter from the parameter table `par` for a given `key`. 
 	If the key is not found, return the `default` value.
 """
-function getstring(key::String, default=:none)
-	val = getstring(_par.pars, key)
+function getstring(par::Par, key::String, default=:none)
+	val = getstring(par.pars, key)
 	if val != :none
         return val
 	else
@@ -115,29 +124,29 @@ function getpars(p::Par, key::String, n::Int, T::DataType, default=:none)
 end
 
 """
-	getints(key, n, default)
+	getints(par, key, n, default)
 
 	Extract an array of integer parameters from the parameter table `par` for a given `key`. 
 	The array will have length `n`. If the number of values in the table is less than `n`, the last value will be repeated to fill the array. If the number of values is greater than `n`, only the first `n` values will be returned. If the key is not found, return the `default` value.
 """
-getints(key::String, n::Int, default=:none) = getpars(_par, key, n, Int32, default)
+getints(par::Par, key::String, n::Int, default=:none) = getpars(par, key, n, Int32, default)
 
 """
-	getfloats(key, n, default)
+	getfloats(par, key, n, default)
 
 	Extract an array of float parameters from the parameter table `par` for a given `key`. 
 	The array will have length `n`. If the number of values in the table is less than `n`, the last value will be repeated to fill the array. If the number of values is greater than `n`, only the first `n` values will be returned. If the key is not found, return the `default` value.
 """		
-getfloats(key::String, n::Int, default=:none) = getpars(_par, key, n, Float32, default)
+getfloats(par::Par, key::String, n::Int, default=:none) = getpars(par, key, n, Float32, default)
 
 """
-	getbools(key, n, default)
+	getbools(par, key, n, default)
 
 	Extract an array of boolean parameters from the parameter table `par` for a given `key`. 
 	The array will have length `n`. If the number of values in the table is less than `n`, the last value will be repeated to fill the array. If the number of values is greater than `n`, only the first `n` values will be returned. If the key is not found, return the `default` value.
 """
-function getbools(key::String, n::Int, default=:none)
-	get, pars = getbools(_par.pars, key, n)
+function getbools(par::Par, key::String, n::Int, default=:none)
+	get, pars = getbools(par.pars, key, n)
 	if get == false	&& default != :none 
 		nval = length(default)
         # set array to length n

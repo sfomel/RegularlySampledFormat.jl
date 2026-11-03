@@ -11,44 +11,46 @@ Base.write(pf, "bs=y,n,y\n")
 Base.write(pf, "s1=string\n")
 close(pf)
 
-@test RegularlySampledFormat._par.prog == "-"
+par = Par()
 
-RegularlySampledFormat._par = Par("julia",["-","i1=1","r1=2.0","b1=y","b2=n","ns=1,2,3","par=parfile.txt"])
+@test par.prog == ""
 
-@test RegularlySampledFormat._par.prog == "julia"
+par = Par("julia",["-","i1=1","r1=2.0","b1=y","b2=n","ns=1,2,3","par=parfile.txt"])
 
-@test getint("i1") == 2
-@test getfloat("r1") ≈ 2.0
-@test getbool("b1") == true
-@test getbool("b2") == false
-@test getints("ns", 3) == [1,2,3]
-@test getints("ns", 2) == [1,2]
-@test getints("ns", 5) == [1,2,3,3,3]
-@test getstring("s1") == "string"
+@test par.prog == "julia"
 
-@test getprog() == "julia"
-@test getint("c") == :none
-@test getint("c", 4) == 4
-@test getfloat("b") == :none
-@test getfloat("b", 4.0) == 4.0
-@test getbool("b") == :none
-@test getbool("b", true) == true
-@test getstring("b") == :none
-@test getstring("b", "default") == "default"
+@test getint(par, "i1") == 2
+@test getfloat(par, "r1") ≈ 2.0
+@test getbool(par, "b1") == true
+@test getbool(par, "b2") == false
+@test getints(par, "ns", 3) == [1,2,3]
+@test getints(par, "ns", 2) == [1,2]
+@test getints(par, "ns", 5) == [1,2,3,3,3]
+@test getstring(par, "s1") == "string"
 
-@test getints("ints", 6) == :none
-@test getfloats("ints", 6) == :none
-@test getbools("ints", 6) == :none
-@test getints("ints", 6, [1,2,3]) == [1,2,3,3,3,3]
-@test getints("ints", 3, [1,2,3]) == [1,2,3]
-@test getints("ints", 2, [1,2,3]) == [1,2]
-@test getfloats("ints", 6, [1.0,2.0,3.0]) ≈ [1.0,2.0,3.0,3.0,3.0,3.0]
-@test getbools("ints", 3, [true,false,true]) == [true,false,true]
-@test getbools("ints", 6, [true,false,true]) == [true,false,true,true,true,true]
-@test getbools("ints", 2, [true,false,true]) == [true,false]
-@test getbools("bs",3) == [true,false,true]
-@test getbools("bs",2) == [true,false]
-@test getbools("bs",5) == [true,false,true,true,true]
+@test getprog(par) == "julia"
+@test getint(par, "c") == :none
+@test getint(par, "c", 4) == 4
+@test getfloat(par, "b") == :none
+@test getfloat(par, "b", 4.0) == 4.0
+@test getbool(par, "b") == :none
+@test getbool(par, "b", true) == true
+@test getstring(par, "b") == :none
+@test getstring(par, "b", "default") == "default"
+
+@test getints(par, "ints", 6) == :none
+@test getfloats(par, "ints", 6) == :none
+@test getbools(par, "ints", 6) == :none
+@test getints(par, "ints", 6, [1,2,3]) == [1,2,3,3,3,3]
+@test getints(par, "ints", 3, [1,2,3]) == [1,2,3]
+@test getints(par, "ints", 2, [1,2,3]) == [1,2]
+@test getfloats(par, "ints", 6, [1.0,2.0,3.0]) ≈ [1.0,2.0,3.0,3.0,3.0,3.0]
+@test getbools(par, "ints", 3, [true,false,true]) == [true,false,true]
+@test getbools(par, "ints", 6, [true,false,true]) == [true,false,true,true,true,true]
+@test getbools(par, "ints", 2, [true,false,true]) == [true,false]
+@test getbools(par, "bs",3) == [true,false,true]
+@test getbools(par, "bs",2) == [true,false]
+@test getbools(par, "bs",5) == [true,false,true,true,true]
 
 # Tests for RSF file reading and writing
 

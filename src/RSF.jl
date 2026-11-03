@@ -65,13 +65,13 @@ begin
         If `inp` is false, it prepares for writing to an output RSF file specified by `tag`.
     """
 	function _RSF(inp::Bool, tag=nothing)
-        global _infiles		
+        global _infiles, _par		
 		if inp
 			if tag==nothing || tag=="in"
 				stream = stdin
 				filename = :none
 			else 
-				filename = getstring(tag)
+				filename = getstring(_par, tag)
 				if filename == :none
 					filename = tag
 				end
@@ -111,7 +111,7 @@ begin
 				stream = stdout
 				filename = :none
 			else
-                filename = getstring(tag)
+                filename = getstring(_par, tag)
 				if filename == :none
 					filename = tag
 				end
@@ -126,9 +126,9 @@ begin
                 pipe = true
 			end
 			if stream == stdout
-				filename = getstring("--out") 
+				filename = getstring(_par, "--out") 
                 if filename == :none
-                    filename = getstring("out")
+                    filename = getstring(_par, "out")
                 end
             else
                 filename = :none
@@ -381,7 +381,7 @@ function fileflush!(rsf::_RSF, src::Union{_RSF, Symbol})
 	username = Libc.getpwuid(user).username
 	now = Dates.now()
 	time = Dates.format(now, "e, dd u yyyy HH:MM:SS")
-	line = "$(getprog())\t$(pwd())\t$(username)\t$(gethostname())\t$(now)\n"
+	line = "$(getprog(_par))\t$(pwd())\t$(username)\t$(gethostname())\t$(now)\n"
 	Base.write(rsf.stream, line)
 
     putstring!(rsf, "data_format", join([rsf.form,types[rsf.type]],"_"))
