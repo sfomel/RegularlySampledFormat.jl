@@ -492,6 +492,7 @@ function floatwrite(rsf::_RSF,arr)
             left -= nbuf
 		end
     else
+        println("Writing float array in binary format: ", length(arr))
 		Base.write(rsf.stream, reinterpret(UInt8, arr))
 	end
 end
