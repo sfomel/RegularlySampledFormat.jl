@@ -492,8 +492,15 @@ function floatwrite(rsf::_RSF,arr)
             left -= nbuf
 		end
     else
-        println("Writing float array in binary format: ", length(arr))
-		Base.write(rsf.stream, reinterpret(UInt8, arr))
+        try
+            Base.write(rsf.stream, reinterpret(UInt8, arr))
+        catch e
+            if e isa Base.IOError 
+                # ignore the IO error
+            else
+                rethrow()
+            end
+        end
 	end
 end
 
