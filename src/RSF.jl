@@ -373,7 +373,15 @@ function fileflush!(rsf::_RSF, src::Union{_RSF, Symbol})
     if :none != src && :none != src.head
         seek(src.head,0)
 		for line in eachline(src.head)
-			Base.write(rsf.stream, line * "\n")
+            try
+			    Base.write(rsf.stream, line * "\n")
+            catch e
+                if e isa Base.IOError 
+                    # ignore the IO error
+                else
+                    rethrow(e)
+                end
+            end
 		end
 	end
 
