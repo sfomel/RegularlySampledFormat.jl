@@ -390,7 +390,15 @@ function fileflush!(rsf::_RSF, src::Union{_RSF, Symbol})
 	now = Dates.now()
 	time = Dates.format(now, "e, dd u yyyy HH:MM:SS")
 	line = "$(getprog(_par))\t$(pwd())\t$(username)\t$(gethostname())\t$(now)\n"
-	Base.write(rsf.stream, line)
+    try
+	    Base.write(rsf.stream, line)
+    catch e
+        if e isa Base.IOError 
+            # ignore the IO error
+        else
+            rethrow(e)
+        end
+    end
 
     putstring!(rsf, "data_format", join([rsf.form,types[rsf.type]],"_"))
     output(rsf.pars, rsf.stream)
