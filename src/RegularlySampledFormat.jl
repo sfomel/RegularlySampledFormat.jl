@@ -13,6 +13,21 @@ include("RSF.jl")
 include("IO.jl")
 include("File.jl")
 
+"""
+    __init__()
+
+	Initialize the RegularlySampledFormat module. This function is called automatically when the module is loaded.
+"""
+function __init__()
+        # Runs at load time in every session that uses the package
+    global _par, _infiles
+    # parameters and input files initialization
+    _par = Par()
+    _infiles = Vector{Union{_RSF, Symbol}}(undef, 1)
+    _infiles[1] = :none
+    ccall(:signal, Ptr{Cvoid}, (Cint, Ptr{Cvoid}), 13, C_NULL)  # e.g. restore default SIGPIPE
+end
+
 # Exports
 export getint,
        getstring,

@@ -30,7 +30,6 @@ begin
 	Create a new parameter table from the default program file and arguments.
 	"""
 	Par() = Par(PROGRAM_FILE, ARGS)
-	_par = Par()
 end
 
 """
