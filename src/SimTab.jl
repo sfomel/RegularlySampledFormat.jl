@@ -82,7 +82,15 @@ end
 """
 function output(t::SimTab, filep::IO)
     for key in keys(t.table)
+		try
         Base.write(filep, "\t$(key)=$(t.table[key])\n")
+        catch e
+            if e isa Base.IOError 
+                # ignore the IO error
+            else
+                rethrow(e)
+            end
+        end
 	end
 end
 
