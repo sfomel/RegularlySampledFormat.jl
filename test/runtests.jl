@@ -320,6 +320,8 @@ putint!(out,"n2",2)
 @test leftsize(out, 0) == 10
 @test leftsize(out, 1) == 2
 @test leftsize(out, 2) == 1
+fileflush!(out, :none)	
+fileflush!(out, :none)
 datawrite(out, Int32[0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
 flush!(out)
 fileclose(out)
@@ -412,7 +414,6 @@ try
 	settype!(out, Int32)
 	putint!(out,"n1", 5)
 	putint!(out,"n2", 2)
-	fileflush!(out, :none)
 	datawrite(out, Int32[0, 0, 0, 0, 1])
 	datawrite(out, Int32[0, 0, 0, 0, 1])
 	fileclose(out)
