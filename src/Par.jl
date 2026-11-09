@@ -38,7 +38,7 @@ end
 	Extract the running program name
 """
 getprog(par::Par) = par.prog
-
+getprog() = _par.prog
 """
 	getpar(p, key, T, default)
 
@@ -55,12 +55,34 @@ function getpar(p::Par, key::String, T::DataType, default=:none)
 end
 
 """
+	Extract a parameter of type `T` from the default parameter table `_par` for a given `key`. 
+	If the key is not found, return the `default` value.
+"""
+getpar(key::String, T::DataType, default=:none) = getpar(_par, key, T, default)
+
+"""
 	getint(par, key, default)
 
 	Extract an integer parameter from the parameter table `par` for a given `key`. 
 	If the key is not found, return the `default` value.
 """
 getint(par::Par, key::String, default=:none) = getpar(par, key, Int32, default)
+
+"""
+	getfloat(key, default)
+
+	Extract a float parameter from the default parameter table `_par` for a given `key`. 
+	If the key is not found, return the `default` value.
+"""
+getfloat(key::String, default=:none) = getpar(_par, key, Float32, default)	
+
+"""
+	getint(key, default)
+
+	Extract an integer parameter from the default parameter table `_par` for a given `key`. 
+	If the key is not found, return the `default` value.
+"""
+getint(key::String, default=:none) = getpar(_par, key, Int32, default)
 
 """
 	getfloat(par, key, default)
@@ -86,6 +108,12 @@ function getbool(par::Par, key::String, default=:none)
 end
 
 """
+	Extract a boolean parameter from the default parameter table `_par` for a given `key`. 
+	If the key is not found, return the `default` value.
+"""
+getbool(key::String, default=:none) = getbool(_par, key, default)
+
+"""
 	getstring(par, key, default)
 
 	Extract a string parameter from the parameter table `par` for a given `key`. 
@@ -99,6 +127,14 @@ function getstring(par::Par, key::String, default=:none)
         return default
 	end
 end
+
+"""
+	getstring(key, default)
+
+	Extract a string parameter from the default parameter table `_par` for a given `key`. 
+	If the key is not found, return the `default` value.
+"""
+getstring(key::String, default=:none) = getstring(_par, key, default)	
 
 """
 	getpars(p, key, n, T, default)
@@ -123,6 +159,14 @@ function getpars(p::Par, key::String, n::Int, T::DataType, default=:none)
 end
 
 """
+	getpars(key, n, T, default)
+
+	Extract an array of parameters of type `T` from the default parameter table `_par` for a given `key`. 
+	The array will have length `n`. If the number of values in the table is less than `n`, the last value will be repeated to fill the array. If the number of values is greater than `n`, only the first `n` values will be returned. If the key is not found, return the `default` value.
+"""
+getpars(key::String, n::Int, T::DataType, default=:none) = getpars(_par, key, n, T, default)
+
+"""
 	getints(par, key, n, default)
 
 	Extract an array of integer parameters from the parameter table `par` for a given `key`. 
@@ -131,12 +175,28 @@ end
 getints(par::Par, key::String, n::Int, default=:none) = getpars(par, key, n, Int32, default)
 
 """
+	getints(key, n, default)
+
+	Extract an array of integer parameters from the default parameter table `_par` for a given `key`. 
+	The array will have length `n`. If the number of values in the table is less than `n`, the last value will be repeated to fill the array. If the number of values is greater than `n`, only the first `n` values will be returned. If the key is not found, return the `default` value.
+"""
+getints(key::String, n::Int, default=:none) = getints(_par, key, n, default)
+
+"""
 	getfloats(par, key, n, default)
 
 	Extract an array of float parameters from the parameter table `par` for a given `key`. 
 	The array will have length `n`. If the number of values in the table is less than `n`, the last value will be repeated to fill the array. If the number of values is greater than `n`, only the first `n` values will be returned. If the key is not found, return the `default` value.
 """		
 getfloats(par::Par, key::String, n::Int, default=:none) = getpars(par, key, n, Float32, default)
+
+"""
+	getfloats(key, n, default)
+
+	Extract an array of float parameters from the default parameter table `_par` for a given `key`. 
+	The array will have length `n`. If the number of values in the table is less than `n`, the last value will be repeated to fill the array. If the number of values is greater than `n`, only the first `n` values will be returned. If the key is not found, return the `default` value.
+"""
+getfloats(key::String, n::Int, default=:none) = getfloats(_par, key, n, default)
 
 """
 	getbools(par, key, n, default)
@@ -159,3 +219,11 @@ function getbools(par::Par, key::String, n::Int, default=:none)
 	end
 	return pars
 end
+
+"""
+	getbools(key, n, default)
+
+	Extract an array of boolean parameters from the default parameter table `_par` for a given `key`. 
+	The array will have length `n`. If the number of values in the table is less than `n`, the last value will be repeated to fill the array. If the number of values is greater than `n`, only the first `n` values will be returned. If the key is not found, return the `default` value.
+"""
+getbools(key::String, n::Int, default=:none) = getbools(_par, key, n, default)
