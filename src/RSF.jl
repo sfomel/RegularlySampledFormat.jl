@@ -370,15 +370,7 @@ function fileflush!(rsf::_RSF, src::Union{_RSF, Symbol})
     if :none != src && :none != src.head
         seek(src.head,0)
 		for line in eachline(src.head)
-            try
-			    Base.write(rsf.stream, line * "\n")
-            catch e
-                if e isa Base.IOError 
-                    # ignore the IO error
-                else
-                    rethrow(e)
-                end
-            end
+			Base.write(rsf.stream, line * "\n")
 		end
 	end
 
@@ -387,16 +379,8 @@ function fileflush!(rsf::_RSF, src::Union{_RSF, Symbol})
 	now = Dates.now()
 	time = Dates.format(now, "e, dd u yyyy HH:MM:SS")
 	line = "$(getprog(_par))\t$(pwd())\t$(username)\t$(gethostname())\t$(now)\n"
-    try
-	    Base.write(rsf.stream, line)
-    catch e
-        if e isa Base.IOError 
-            # ignore the IO error
-        else
-            rethrow(e)
-        end
-    end
-
+	Base.write(rsf.stream, line)
+    
     putstring!(rsf, "data_format", join([rsf.form,types[rsf.type]],"_"))
     output(rsf.pars, rsf.stream)
     flush(rsf.stream)
@@ -506,16 +490,8 @@ function floatwrite(rsf::_RSF,arr)
             left -= nbuf
 		end
     else
-        try
-            Base.write(rsf.stream, reinterpret(UInt8, arr))
-        catch e
-            if e isa Base.IOError 
-                # ignore the IO error
-            else
-                rethrow()
-            end
-        end
-	end
+        Base.write(rsf.stream, reinterpret(UInt8, arr))
+    end
 end
 
 """
