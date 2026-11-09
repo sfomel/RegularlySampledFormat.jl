@@ -14,6 +14,8 @@ close(pf)
 par = Par()
 
 @test par.prog == ""
+@test getint(par, "i1") == :none
+@test getfloat(par, "r1") == :none
 
 RegularlySampledFormat._par = Par("julia",["-","i1=1","r1=2.0","b1=y","b2=n","ns=1,2,3","par=parfile.txt"])
 

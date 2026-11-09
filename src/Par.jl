@@ -55,12 +55,6 @@ function getpar(p::Par, key::String, T::DataType, default=:none)
 end
 
 """
-	Extract a parameter of type `T` from the default parameter table `_par` for a given `key`. 
-	If the key is not found, return the `default` value.
-"""
-getpar(key::String, T::DataType, default=:none) = getpar(_par, key, T, default)
-
-"""
 	getint(par, key, default)
 
 	Extract an integer parameter from the parameter table `par` for a given `key`. 
@@ -157,14 +151,6 @@ function getpars(p::Par, key::String, n::Int, T::DataType, default=:none)
 	end
 	return pars
 end
-
-"""
-	getpars(key, n, T, default)
-
-	Extract an array of parameters of type `T` from the default parameter table `_par` for a given `key`. 
-	The array will have length `n`. If the number of values in the table is less than `n`, the last value will be repeated to fill the array. If the number of values is greater than `n`, only the first `n` values will be returned. If the key is not found, return the `default` value.
-"""
-getpars(key::String, n::Int, T::DataType, default=:none) = getpars(_par, key, n, T, default)
 
 """
 	getints(par, key, n, default)
