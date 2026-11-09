@@ -64,5 +64,6 @@ export getint,
        dataread!,
        flush!,
        setaformat!,
-       leftsize
+       leftsize,
+       fileflush!
 end

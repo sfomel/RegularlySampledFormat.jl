@@ -412,6 +412,7 @@ try
 	settype!(out, Int32)
 	putint!(out,"n1", 5)
 	putint!(out,"n2", 2)
+	fileflush!(out, :none)
 	datawrite(out, Int32[0, 0, 0, 0, 1])
 	datawrite(out, Int32[0, 0, 0, 0, 1])
 	fileclose(out)

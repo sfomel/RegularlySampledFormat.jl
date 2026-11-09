@@ -328,3 +328,11 @@ fileclose(inp::Input) = fileclose(inp.file)
 """
 leftsize(inp::Input, dim::Int) = leftsize(inp.file, dim)
 leftsize(out::Output, dim::Int) = leftsize(out.file, dim)
+
+"""
+    fileflush!(out::Output, src::Union{_RSF, Symbol})
+
+    Flush the contents of the RSF file represented by the `Output` struct to disk. 
+    If `src` is provided, it also flushes the contents of the source RSF file to the destination.
+"""
+fileflush!(out::Output, src::Union{_RSF, Symbol}) = fileflush!(out.file, src)
