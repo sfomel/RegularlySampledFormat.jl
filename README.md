@@ -16,7 +16,7 @@ The **RSF** file format is used in the [Madagascar](https://en.wikipedia.org/wik
 RegularlySampledFormat.jl requires Julia 1.10.10 or later. From the Julia REPL, press `]` to enter package mode and run:
 
 ```Julia
-pkg> add https://github.com/sfomel/RegularlySampledFormat.jl
+pkg> add RegularlySampledFormat
 ```
 
 ## Quick examples
