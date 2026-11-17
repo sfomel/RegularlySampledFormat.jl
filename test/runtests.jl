@@ -105,7 +105,9 @@ Base.write(io,contents)
 close(io)
 
 io = open("mytest.rsf@", "w")
-Base.write(io, Float32[0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
+bits = reinterpret(UInt32, Float32[0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
+bits .= hton.(bits)
+Base.write(io, bits)
 close(io)
 
 out = Output("mytest_out.rsf")
@@ -127,7 +129,7 @@ setform!(inp, "native")
 @test getform(inp) == "native"
 setform!(inp, "ascii")
 @test getform(inp) == "ascii"
-setform!(inp, "native")
+setform!(inp, "xdr")
 
 @test getint(inp, "n1", 10) == 10
 @test getfloat(inp, "d1") ≈ 0.004
@@ -412,6 +414,7 @@ try
 	Base.stdout = p
 	out = Output("out")
 	settype!(out, Int32)
+	@test getform(out) == "xdr"
 	putint!(out,"n1", 5)
 	putint!(out,"n2", 2)
 	datawrite(out, Int32[0, 0, 0, 0, 1])
@@ -427,6 +430,7 @@ try
     Base.stdin = p
     inp = Input("in")
     @test gettype(inp) == Int32
+    @test getform(inp) == "xdr"
     @test bytes(inp) == -1
 	@test leftsize(inp, 0) == 10
 	@test leftsize(inp, 1) == 2

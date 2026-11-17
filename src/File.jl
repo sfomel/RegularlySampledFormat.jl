@@ -16,7 +16,24 @@ begin
             io = file.file.stream
             shape = getshape(file)
             dims = length(shape)
-            data = Mmap.mmap(io, Array{T, dims}, shape)
+            form = getform(file)
+            if form == "native"
+                data = Mmap.mmap(io, Array{T, dims}, shape)
+            elseif form == "xdr"
+                if T == Int32  
+                    bits = Mmap.mmap(io, Array{UInt32, dims}, shape)
+                    bits .= ntoh.(bits)
+                    data = reinterpret(Int32, bits)
+                elseif T == Float32 
+                    bits = Mmap.mmap(io, Array{UInt32, dims}, shape)
+                    bits .= ntoh.(bits)
+                    data = reinterpret(Float32, bits)
+                else
+                    error("Unsupported type for xdr form: $T")
+                end
+            else
+                error("Unsupported form: $form")
+            end
             return new(file, data)
         end
         function RSF(data::Array, name::String="")
