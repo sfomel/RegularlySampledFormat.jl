@@ -20,14 +20,12 @@ begin
             if form == "native"
                 data = Mmap.mmap(io, Array{T, dims}, shape)
             elseif form == "xdr"
-                if T == Int32  
-                    bits = Mmap.mmap(io, Array{UInt32, dims}, shape)
-                    bits .= ntoh.(bits)
-                    data = reinterpret(Int32, bits)
-                elseif T == Float32 
-                    bits = Mmap.mmap(io, Array{UInt32, dims}, shape)
-                    bits .= ntoh.(bits)
-                    data = reinterpret(Float32, bits)
+                bshape = collect(shape)
+                if T == Int32  || T == Float32
+                    bshape[1] *= 4
+                    bytes = Mmap.mmap(io, Array{UInt8, dims}, Tuple(bshape))
+                    bytes .= reinterpret(UInt8, ntoh.(reinterpret(UInt32, bytes)))
+                    data = reinterpret(T, bytes)
                 else
                     error("Unsupported type for xdr form: $T")
                 end
