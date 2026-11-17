@@ -1,17 +1,19 @@
 name = "RegularlySampledFormat"
 uuid = "1c5ec455-f405-45c6-8f0c-36dd8a824b67"
-version = "1.0.0"
+version = "1.0.1"
 authors = ["sfomel <sergey.fomel@gmail.com> and contributors"]
 
 [deps]
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
+Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
 Mmap = "a63ad114-7e13-5084-954f-fe012c677804"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [compat]
 Dates = "1.10, 1.10.12"
 DelimitedFiles = "1.9.1"
+Flux = "0.16.13"
 Mmap = "1.10, 1.10.12"
 Printf = "1.10, 1.10.12"
 julia = "1.10.10"
