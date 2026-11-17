@@ -438,11 +438,11 @@ function intwrite(rsf::_RSF,arr)
             left -= nbuf
 		end
     else
-        bits = reinterpret(UInt8, arr)
+        bytes = reinterpret(UInt8, arr)
         if rsf.form == "xdr"
-            bits .= reinterpret(UInt8, hton.(reinterpret(UInt32, bits)))
+            bytes .= reinterpret(UInt8, hton.(reinterpret(UInt32, bytes)))
         end
-        Base.write(rsf.stream, bits)
+        Base.write(rsf.stream, bytes)
 	end
 end
 
@@ -494,11 +494,11 @@ function floatwrite(rsf::_RSF,arr)
             left -= nbuf
 		end
     else
-        bits = reinterpret(UInt8, arr)
+        bytes = reinterpret(UInt8, arr)
         if rsf.form == "xdr"
-            bits .= reinterpret(UInt8, hton.(reinterpret(UInt32, bits)))
+            bytes .= reinterpret(UInt8, hton.(reinterpret(UInt32, bytes)))
         end
-        Base.write(rsf.stream, bits)
+        Base.write(rsf.stream, bytes)
     end
 end
 
@@ -526,12 +526,12 @@ function intread!(rsf::_RSF, arr)
             left -= nbuf
 		end
     else
-		bits = Array{UInt8}(undef, length(arr)*4)
-        readbytes!(rsf.stream, bits)
+		bytes = Array{UInt8}(undef, length(arr)*4)
+        readbytes!(rsf.stream, bytes)
         if rsf.form == "xdr"
-            bits .= reinterpret(UInt8, ntoh.(reinterpret(UInt32, bits)))
+            bytes .= reinterpret(UInt8, ntoh.(reinterpret(UInt32, bytes)))
         end
-		arr .= reinterpret(Int32, bits)
+		arr .= reinterpret(Int32, bytes)
 	end
 end
 
@@ -552,12 +552,12 @@ function floatread!(rsf::_RSF, arr)
             left -= nbuf
 		end
     else
-		bits = Array{UInt8}(undef, length(arr)*4)
-        readbytes!(rsf.stream, bits)
+		bytes = Array{UInt8}(undef, length(arr)*4)
+        readbytes!(rsf.stream, bytes)
         if rsf.form == "xdr"
-            bits .= reinterpret(UInt8, ntoh.(reinterpret(UInt32, bits)))
+            bytes .= reinterpret(UInt8, ntoh.(reinterpret(UInt32, bytes)))
         end
-        arr .= reinterpret(Float32, bits)
+        arr .= reinterpret(Float32, bytes)
 	end
 end
 
