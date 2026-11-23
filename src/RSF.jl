@@ -656,3 +656,31 @@ function leftsize(rsf::_RSF, dim::Int)
     end
     return s
 end
+
+"""
+    show(io, f::_RSF)
+
+    Display the RSF file represented by the `_RSF` struct in a human-readable format.
+"""
+function Base.show(io::IO, f::_RSF)
+    println(io, "$(f.headname):")
+    println(io, "  in=\"$(f.dataname)\"")
+    println(io, "  type=$(f.type) form=$(f.form)")
+    for i in 1:9
+        ni = getpar(f, "n$i", Int)
+        if ni == :none
+            break
+        end
+        di = getpar(f, "d$i", Float64)
+        oi = getpar(f, "o$i", Float64)
+        li = getstring(f.pars, "label$i")
+        if li != :none
+            li = "\"$li\""
+        end
+        ui = getstring(f.pars, "unit$i")
+        if ui != :none
+            ui = "\"$ui\""
+        end
+        println(io, "  n$i=$ni d$i=$di o$i=$oi label$i=$li unit$i=$ui")
+    end   
+end

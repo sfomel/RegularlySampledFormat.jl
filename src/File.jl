@@ -68,3 +68,14 @@ end
     Extract the shape of the data array from the RSF file `rsf`.
 """
 getshape(rsf::RSF) = size(rsf.data)
+
+"""
+    show(io, f::RSF)
+
+    Display the RSF file `f` in a human-readable format.
+"""
+function Base.show(io::IO, f::RSF)
+    println(io, "RSF:")
+    println(io, "  disk: $(f.file.file.headname) => $(f.file.file.dataname)")  
+    println(io, "  data: $(eltype(f.data)) $(size(f.data))")
+end

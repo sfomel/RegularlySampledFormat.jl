@@ -118,6 +118,7 @@ setformat!(out, "native_char")
 fileclose(out)
 
 inp = Input("mytest.rsf")
+# @show inp
 
 @test gettype(inp) == Float32
 settype!(inp, Int32)
@@ -354,6 +355,7 @@ file = RSF("mytest.rsf")
 
 data = ones(Float32, 5, 4)
 file = RSF(data)
+# @show file
 @test getshape(file) == (5, 4)
 
 data = ones(Float64, 5, 4)
