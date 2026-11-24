@@ -79,3 +79,9 @@ function Base.show(io::IO, f::RSF)
     println(io, "  disk: $(f.file.file.headname) => $(f.file.file.dataname)")  
     println(io, "  data: $(eltype(f.data)) $(size(f.data))")
 end
+
+"""
+    Extract integer and floating-point parameters from the RSF file `rsf`.
+"""
+getint(rsf::RSF, key::String) = getint(rsf.file, key)
+getfloat(rsf::RSF, key::String) = getfloat(rsf.file, key)

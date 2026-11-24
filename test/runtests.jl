@@ -118,7 +118,7 @@ setformat!(out, "native_char")
 fileclose(out)
 
 inp = Input("mytest.rsf")
-# @show inp
+@show inp
 
 @test gettype(inp) == Float32
 settype!(inp, Int32)
@@ -355,8 +355,12 @@ file = RSF("mytest.rsf")
 
 data = ones(Float32, 5, 4)
 file = RSF(data)
-# @show file
+@show file
 @test getshape(file) == (5, 4)
+@test getint(file, "n1") == 5
+@test getint(file, "n2") == 4
+@test getshape(file) == (5, 4)	
+@test getfloat(file, "d1") ≈ 0.004
 
 data = ones(Float64, 5, 4)
 @test_throws "Unsupported data type: Float64" file = RSF(data)
