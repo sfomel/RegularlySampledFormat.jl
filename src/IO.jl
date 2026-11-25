@@ -59,8 +59,10 @@ function Temp()
 	return temp
 end
 
+abstract type AbstractRSF end
+
 begin
-	mutable struct Input
+	mutable struct Input <: AbstractRSF
 		file::_RSF
 	end
     """
@@ -72,7 +74,7 @@ begin
 end
 
 begin
-	mutable struct Output
+	mutable struct Output <: AbstractRSF
 		file::_RSF
 	end
     """
@@ -84,40 +86,25 @@ begin
 end
 
 """
-    gettype(inp::Input) -> DataType
+    gettype(inp::AbstractRSF) -> DataType
 
-    Return the data type of the RSF file represented by the `Input` struct.
-    
-    gettype(out::Output) -> DataType
-
-    Return the data type of the RSF file represented by the `Output` struct.
+    Return the data type of the RSF file represented by the `AbstractRSF` struct.
 """
-gettype(inp::Input) = gettype(inp.file)
-gettype(out::Output) = gettype(out.file)
+gettype(inp::AbstractRSF) = gettype(inp.file)
 
 """
-    setform!(rsf::Input, form::String)
+    setform!(rsf::AbstractRSF, form::String)
 
-    Set the data format of the RSF file represented by the `Input` struct to `form`.
-
-    setform!(rsf::Output, form::String)
-
-    Set the data format of the RSF file represented by the `Output` struct to `form`.
+    Set the data format of the RSF file represented by the `AbstractRSF` struct to `form`.
 """
-setform!(rsf::Input, form::String) = setform!(rsf.file, form)
-setform!(rsf::Output, form::String) = setform!(rsf.file, form)  
+setform!(rsf::AbstractRSF, form::String) = setform!(rsf.file, form)
 
 """
-    settype!(rsf::Input, T::DataType)
+    settype!(rsf::AbstractRSF, T::DataType)
 
-    Set the data type of the RSF file represented by the `Input` struct to `T`.
-
-    settype!(rsf::Output, T::DataType)
-
-    Set the data type of the RSF file represented by the `Output` struct to `T`.
+    Set the data type of the RSF file represented by the `AbstractRSF` struct to `T`.
 """
-settype!(rsf::Input, T::DataType) = settype!(rsf.file, T)  
-settype!(rsf::Output, T::DataType) = settype!(rsf.file, T)  
+settype!(rsf::AbstractRSF, T::DataType) = settype!(rsf.file, T)  
 
 """
     putint!(rsf::Output, key::String, par::Integer)
@@ -152,16 +139,11 @@ putfloat!(rsf::Output,key::String,val::AbstractFloat) = putfloat!(rsf.file,key,v
 putfloats!(rsf::Output,key::String,par::Array{<: AbstractFloat},n::Int) = putfloats!(rsf.file,key,par,n)
 
 """
-    getform(inp::Input) -> String
+    getform(inp::AbstractRSF) -> String
 
-    Return the data format of the RSF file represented by the `Input` struct.
-
-    getform(out::Output) -> String
-
-    Return the data format of the RSF file represented by the `Output` struct.
+    Return the data format of the RSF file represented by the `AbstractRSF` struct.
 """
-getform(inp::Input) = getform(inp.file)
-getform(out::Output) = getform(out.file)
+getform(inp::AbstractRSF) = getform(inp.file)
 
 """
     setformat!(rsf::Output, dataformat::String)
@@ -172,18 +154,12 @@ getform(out::Output) = getform(out.file)
 setformat!(rsf::Output, dataformat::String) = setformat!(rsf.file, dataformat)
 
 """
-    getstring(rsf::Input, key::String, default=:none) -> String
+    getstring(rsf::AbstractRSF, key::String, default=:none) -> String
 
-    Retrieve the string value associated with the specified `key` in the RSF file represented by the `Input` struct.
-    If the key is not found, return the `default` value.
-
-    getstring(rsf::Output, key::String, default=:none) -> String
-
-    Retrieve the string value associated with the specified `key` in the RSF file represented by the `Output` struct.
+    Retrieve the string value associated with the specified `key` in the RSF file represented by the `AbstractRSF` struct.
     If the key is not found, return the `default` value.
 """
-getstring(rsf::Input, key::String, default=:none) = getstring(rsf.file, key, default)
-getstring(rsf::Output, key::String, default=:none) = getstring(rsf.file, key, default)
+getstring(rsf::AbstractRSF, key::String, default=:none) = getstring(rsf.file, key, default)
 
 """
     putstring!(rsf::Output, key::String, par::String)
@@ -237,66 +213,40 @@ function datawrite(out::Output, data::Array)
 end
 
 """
-    tell(inp::Input) -> Int
+    tell(inp::AbstractRSF) -> Int
 
-    Return the current position in the RSF file represented by the `Input` struct.
-
-    tell(out::Output) -> Int
-
-    Return the current position in the RSF file represented by the `Output` struct.
+    Return the current position in the RSF file represented by the `AbstractRSF` struct.
 """
-tell(inp::Input) = tell(inp.file)
-tell(out::Output) = tell(out.file)
+tell(inp::AbstractRSF) = tell(inp.file)
 
 """
-    bytes(inp::Input) -> Int
+    bytes(rsf::AbstractRSF) -> Int
 
-    Return the size in bytes of the RSF file represented by the `Input` struct. 
-
-    bytes(out::Output) -> Int
-
-    Return the size in bytes of the RSF file represented by the `Output` struct. 
+    Return the size in bytes of the RSF file represented by the `AbstractRSF` struct. 
 """ 
-bytes(inp::Input) = bytes(inp.file)
-bytes(out::Output) = bytes(out.file)
+bytes(inp::AbstractRSF) = bytes(inp.file)
 
 """
-    getint(inp::Input, key::String, default=:none) -> Int
+    getint(inp::AbstractRSF, key::String, default=:none) -> Int
 
-    Get an integer parameter from the RSF file represented by the `Input` struct.
-
-    getint(out::Output, key::String, default=:none) -> Int
-
-    Get an integer parameter from the RSF file represented by the `Output` struct.
+    Get an integer parameter from the RSF file represented by the `AbstractRSF` struct.
 """
-getint(inp::Input, key::String, default=:none) = getpar(inp.file, key, Int32, default)
-getint(out::Output, key::String, default=:none) = getpar(out.file, key, Int32, default)
+getint(inp::AbstractRSF, key::String, default=:none) = getpar(inp.file, key, Int32, default)
 
 """
-    getfloat(inp::Input, key::String, default=:none) -> Float
+    getfloat(rsf::AbstractRSF, key::String, default=:none) -> Float
 
-    Get a float parameter from the RSF file represented by the `Input` struct.
-
-    getfloat(out::Output, key::String, default=:none) -> Float
-
-    Get a float parameter from the RSF file represented by the `Output` struct.
+    Get a float parameter from the RSF file represented by the `AbstractRSF` struct.
 """
-getfloat(inp::Input, key::String, default=:none) = getpar(inp.file, key, Float32, default)
-getfloat(out::Output, key::String, default=:none) = getpar(out.file, key, Float32, default)
+getfloat(rsf::AbstractRSF, key::String, default=:none) = getpar(rsf.file, key, Float32, default)
 
 """
-    getshape(inp::Input) -> Tuple{Vararg{Int}}
+    getshape(rsf::AbstractRSF) -> Tuple{Vararg{Int}}
 
-    Extract the shape of the data from the RSF file represented by the `Input` struct. 
-    The function returns a tuple of integers representing the dimensions of the data.
-
-    getshape(out::Output) -> Tuple{Vararg{Int}}
-
-    Extract the shape of the data from the RSF file represented by the `Output` struct. 
+    Extract the shape of the data from the RSF file represented by the `AbstractRSF` struct. 
     The function returns a tuple of integers representing the dimensions of the data.
 """
-getshape(inp::Input) = getshape(inp.file)
-getshape(out::Output) = getshape(out.file)
+getshape(inp::AbstractRSF) = getshape(inp.file)
 
 """
     setaformat!(out::Output, format::String, line::Int=8, strip::Int=0)
@@ -306,28 +256,18 @@ getshape(out::Output) = getshape(out.file)
 setaformat!(out::Output, format::String, line::Int=8, strip::Int=0) = setaformat!(out.file, format, line, strip)
 
 """
-    fileclose(inp::Input)
+    fileclose(rsf::AbstractRSF)
 
-    Close the RSF file represented by the `Input` struct.
-
-    fileclose(out::Output)
-
-    Close the RSF file represented by the `Output` struct.
+    Close the RSF file represented by the `AbstractRSF` struct.
 """
-fileclose(out::Output) = fileclose(out.file)
-fileclose(inp::Input) = fileclose(inp.file)
+fileclose(rsf::AbstractRSF) = fileclose(rsf.file)
 
 """
-    leftsize(inp::Input, dim::Int) -> Int
-
-    Return the product of the sizes of the dimensions following the specified dimension `dim` in the RSF file represented by the `Input` struct.
-
-    leftsize(out::Output, dim::Int) -> Int
+    leftsize(rsf::AbstractRSF, dim::Int) -> Int
 
     Return the product of the sizes of the dimensions following the specified dimension `dim` in the RSF file represented by the `Output` struct.
 """
-leftsize(inp::Input, dim::Int) = leftsize(inp.file, dim)
-leftsize(out::Output, dim::Int) = leftsize(out.file, dim)
+leftsize(inp::AbstractRSF, dim::Int) = leftsize(inp.file, dim)
 
 """
     fileflush!(out::Output, src::Union{_RSF, Symbol})
