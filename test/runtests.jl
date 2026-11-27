@@ -361,6 +361,7 @@ file = RSF(data)
 @test getint(file, "n2") == 4
 @test getshape(file) == (5, 4)	
 @test getfloat(file, "d1") ≈ 0.004
+@test getstring(file, "label1") == "Time"
 
 data = ones(Float64, 5, 4)
 @test_throws "Unsupported data type: Float64" file = RSF(data)

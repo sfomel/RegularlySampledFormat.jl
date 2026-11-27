@@ -81,7 +81,8 @@ function Base.show(io::IO, f::RSF)
 end
 
 """
-    Extract integer and floating-point parameters from the RSF file `rsf`.
+    Extract integer, floating-point, and string parameters from the RSF file `rsf`.
 """
 getint(rsf::RSF, key::String) = getint(rsf.file, key)
 getfloat(rsf::RSF, key::String) = getfloat(rsf.file, key)
+getstring(rsf::RSF, key::String) = getstring(rsf.file, key)
