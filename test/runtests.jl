@@ -275,6 +275,8 @@ datawrite(out, Int32[0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
 flush!(out)
 fileclose(out)
 
+@test_throws "Unsupported form: ascii" rsf = RSF("mytest_out.rsf")
+
 inp = Input("mytest_out.rsf")
 @test gettype(inp) == Int32
 @test getform(inp) == "ascii"
